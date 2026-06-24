@@ -1,0 +1,37 @@
+# Core pipeline
+langchain-openai
+langchain-core
+langgraph
+langgraph-checkpoint-sqlite
+openai
+
+# AWS
+boto3
+
+# Resume parsing
+pdfplumber
+python-docx
+
+# API
+fastapi
+uvicorn[standard]
+httpx
+python-multipart
+
+# Testing
+pytest
+pytest-mock
+
+# Utilities
+pydantic
+python-dotenv
+resend
+
+# Google Calendar
+google-api-python-client
+google-auth
+google-auth-httplib2
+
+# PostgreSQL (Railway / production)
+langgraph-checkpoint-postgres
+psycopg[binary]

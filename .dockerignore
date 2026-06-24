@@ -1,0 +1,13 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.db
+*.log
+.env
+.git/
+*.pdf
+worker_*.log
+server.log
+create_test_resume.py
+alex_carter_resume.pdf

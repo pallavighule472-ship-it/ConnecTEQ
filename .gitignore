@@ -1,0 +1,59 @@
+# Environment & secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+.venv/
+env/
+ENV/
+
+# Database (local state — not source code)
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temp / upload scratch
+tmp/
+temp/
+
+# Test files
+create_test_resume.py
+*.pdf
+
+# Generated credential files (contain secrets)
+google_calendar_env_vars.txt
+*service-account*.json

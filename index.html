@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ConnecTEQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --brand:    #4f46e5;
+      --brand-lt: #6366f1;
+      --brand-bg: #eef2ff;
+      --success:  #10b981;
+      --warning:  #f59e0b;
+      --danger:   #ef4444;
+      --info:     #3b82f6;
+      --text-1:   #0f172a;
+      --text-2:   #475569;
+      --text-3:   #94a3b8;
+      --border:   #e2e8f0;
+      --bg:       #f8fafc;
+      --card:     #ffffff;
+      --sidebar-w: 240px;
+      --topbar-h:  64px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-1); display: flex; height: 100vh; overflow: hidden; font-size: 14px; }
+
+    /* ════ LOGIN ════ */
+    #login-screen {
+      position: fixed; inset: 0; z-index: 999;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .login-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 40px;
+      width: 420px;
+      box-shadow: 0 8px 40px rgba(15,23,42,0.1);
+    }
+    .login-brand {
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+      margin-bottom: 32px;
+    }
+    .login-brand svg { width: 80px; height: 80px; }
+    .login-brand-name {
+      font-size: 24px; font-weight: 800; letter-spacing: 2px; color: var(--text-1);
+    }
+    .login-brand-name em { color: var(--brand); font-style: normal; }
+    .login-tagline { font-size: 13px; color: var(--text-3); margin-top: 2px; text-align: center; }
+    .login-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+    .login-input {
+      width: 100%; padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: 14px; font-family: inherit;
+      outline: none; transition: border 0.15s; margin-bottom: 16px;
+      background: var(--bg);
+    }
+    .login-input:focus { border-color: var(--brand); background: #fff; }
+    .login-btn {
+      width: 100%; padding: 12px; border-radius: 8px;
+      background: var(--brand); color: #fff; border: none;
+      font-size: 14px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: all 0.15s;
+      box-shadow: 0 4px 14px rgba(79,70,229,0.35);
+    }
+    .login-btn:hover { background: var(--brand-lt); box-shadow: 0 6px 20px rgba(79,70,229,0.45); }
+    .login-err { font-size: 12px; color: var(--danger); background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 8px 12px; margin-top: 12px; display: none; }
+
+    /* ════ APP SHELL ════ */
+    #app { display: none; width: 100%; }
+
+    /* ════ SIDEBAR ════ */
+    .sidebar {
+      width: var(--sidebar-w); background: #0f172a;
+      display: flex; flex-direction: column;
+      flex-shrink: 0; height: 100vh;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .sb-brand {
+      padding: 20px 20px 0;
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 28px;
+    }
+    .sb-brand svg { width: 32px; height: 32px; }
+    .sb-brand-name { font-size: 16px; font-weight: 800; letter-spacing: 1.5px; color: #fff; }
+    .sb-brand-name em { color: #818cf8; font-style: normal; }
+    .sb-section { padding: 0 12px; margin-bottom: 4px; }
+    .sb-section-label { font-size: 10px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 1px; padding: 0 8px; margin-bottom: 6px; }
+    .sb-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 8px;
+      color: #94a3b8; cursor: pointer;
+      font-size: 13.5px; font-weight: 500;
+      transition: all 0.15s; margin-bottom: 2px;
+    }
+    .sb-item:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+    .sb-item.active { background: var(--brand); color: #fff; box-shadow: 0 4px 12px rgba(79,70,229,0.4); }
+    .sb-item .sb-icon { width: 20px; text-align: center; font-size: 15px; }
+    .sb-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 12px 20px; }
+    .sb-bottom { margin-top: auto; padding: 16px 20px; }
+    .sb-user { display: flex; align-items: center; gap: 10px; }
+    .sb-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--brand); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .sb-user-name { font-size: 13px; font-weight: 500; color: #cbd5e1; }
+    .sb-user-role { font-size: 11px; color: #64748b; }
+
+    /* ════ MAIN ════ */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .topbar {
+      height: var(--topbar-h);
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 28px;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .topbar-left h1 { font-size: 17px; font-weight: 700; color: var(--text-1); }
+    .topbar-left p  { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    .content { flex: 1; overflow-y: auto; padding: 28px; }
+
+    /* ════ PANELS ════ */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ════ STAT CARDS ════ */
+    .stats-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--card); border-radius: 12px;
+      padding: 20px; border: 1px solid var(--border);
+      display: flex; align-items: center; gap: 14px;
+      box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+      transition: box-shadow 0.15s, transform 0.15s;
+    }
+    .stat-card:hover { box-shadow: 0 4px 16px rgba(15,23,42,0.1); transform: translateY(-1px); }
+    .stat-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .stat-icon.purple { background: #ede9fe; }
+    .stat-icon.green  { background: #d1fae5; }
+    .stat-icon.amber  { background: #fef3c7; }
+    .stat-icon.teal   { background: #ccfbf1; }
+    .stat-icon.red    { background: #fee2e2; }
+    .stat-icon.blue   { background: #dbeafe; }
+    .stat-val { font-size: 26px; font-weight: 800; color: var(--text-1); line-height: 1; }
+    .stat-lbl { font-size: 12px; color: var(--text-3); margin-top: 3px; font-weight: 500; }
+
+    /* ════ CARDS ════ */
+    .card {
+      background: var(--card); border-radius: 12px;
+      border: 1px solid var(--border); margin-bottom: 20px;
+      box-shadow: 0 1px 4px rgba(15,23,42,0.05);
+    }
+    .card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 22px; border-bottom: 1px solid var(--border);
+    }
+    .card-title { font-size: 14px; font-weight: 700; color: var(--text-1); }
+    .card-body { padding: 22px; }
+
+    /* ════ TABLE ════ */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 10px 16px; text-align: left;
+      font-size: 11px; font-weight: 600; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.6px;
+      background: #f8fafc; border-bottom: 1px solid var(--border);
+      cursor: pointer; user-select: none; white-space: nowrap;
+    }
+    thead th:hover { color: var(--brand); }
+    thead th:first-child { border-radius: 8px 0 0 0; }
+    thead th:last-child  { border-radius: 0 8px 0 0; }
+    tbody tr { border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.1s; }
+    tbody tr:hover { background: #f8faff; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody td { padding: 13px 16px; vertical-align: middle; }
+    .td-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--brand-bg); color: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
+    }
+    .td-candidate { display: flex; align-items: center; gap: 10px; }
+    .td-name { font-weight: 600; color: var(--text-1); font-size: 13.5px; }
+    .td-email { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+    .score-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #f1f5f9; border-radius: 20px; padding: 3px 10px 3px 4px;
+      font-size: 12px; font-weight: 600;
+    }
+    .score-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .score-dot.high { background: var(--success); }
+    .score-dot.mid  { background: var(--warning); }
+    .score-dot.low  { background: var(--danger); }
+
+    /* ════ BADGE ════ */
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; }
+    .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+    .badge-green  { background: #d1fae5; color: #065f46; } .badge-green::before  { background: var(--success); }
+    .badge-red    { background: #fee2e2; color: #991b1b; } .badge-red::before    { background: var(--danger); }
+    .badge-blue   { background: #dbeafe; color: #1e40af; } .badge-blue::before   { background: var(--info); }
+    .badge-amber  { background: #fef3c7; color: #92400e; } .badge-amber::before  { background: var(--warning); }
+    .badge-gray   { background: #f1f5f9; color: #475569; } .badge-gray::before   { background: #94a3b8; }
+
+    /* ════ EMPTY STATE ════ */
+    .empty { text-align: center; padding: 48px 24px; color: var(--text-3); }
+    .empty-icon { font-size: 36px; margin-bottom: 12px; }
+    .empty p { font-size: 13px; }
+
+    /* ════ FORM ════ */
+    .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 7px; }
+    .form-input, .form-select, .form-textarea {
+      width: 100%; padding: 10px 13px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 13.5px; font-family: inherit; color: var(--text-1);
+      background: var(--bg); outline: none; transition: border 0.15s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--brand); background: #fff; box-shadow: 0 0 0 3px rgba(79,70,229,0.08); }
+    .form-textarea { resize: vertical; min-height: 150px; }
+    .form-group { margin-bottom: 18px; }
+
+    /* ════ FILE DROP ════ */
+    .file-drop {
+      border: 2px dashed var(--border); border-radius: 10px;
+      padding: 32px; text-align: center; cursor: pointer;
+      transition: all 0.15s; background: var(--bg);
+    }
+    .file-drop:hover, .file-drop.drag-over { border-color: var(--brand); background: var(--brand-bg); }
+    .file-drop .fd-icon { font-size: 28px; margin-bottom: 8px; }
+    .file-drop p { font-size: 13px; color: var(--text-3); }
+    .file-drop strong { color: var(--brand); }
+    .file-drop input { display: none; }
+    .file-name { font-size: 12px; color: var(--brand); margin-top: 8px; display: none; }
+
+    /* ════ SLIDERS ════ */
+    .slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .slider-label { width: 90px; font-size: 13px; font-weight: 500; color: var(--text-2); }
+    input[type="range"] { flex: 1; accent-color: var(--brand); height: 4px; }
+    .slider-val { width: 36px; text-align: right; font-size: 13px; font-weight: 700; color: var(--brand); }
+
+    /* ════ BUTTONS ════ */
+    .btn { padding: 9px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--brand); color: #fff; box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
+    .btn-primary:hover { background: var(--brand-lt); box-shadow: 0 6px 16px rgba(79,70,229,0.4); }
+    .btn-primary:disabled { background: #c7d2fe; box-shadow: none; cursor: not-allowed; }
+    .btn-danger  { background: var(--danger); color: #fff; box-shadow: 0 4px 12px rgba(239,68,68,0.3); }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-outline { background: #fff; border: 1.5px solid var(--border); color: var(--text-2); }
+    .btn-outline:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-bg); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-full { width: 100%; justify-content: center; }
+
+    /* ════ ALERT ════ */
+    .alert { padding: 11px 14px; border-radius: 8px; font-size: 13px; margin-top: 14px; display: none; }
+    .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+    .alert-error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .alert-warning { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+
+    /* ════ ID BOX ════ */
+    .id-box { background: #0f172a; color: #818cf8; font-family: 'Courier New', monospace; font-size: 13px; padding: 12px 14px; border-radius: 8px; margin-top: 12px; display: none; word-break: break-all; }
+
+    /* ════ ACTION TABS ════ */
+    .act-tabs { display: flex; gap: 6px; margin-bottom: 22px; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+    .act-tab { padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1.5px solid var(--border); color: var(--text-2); background: #fff; transition: all 0.15s; }
+    .act-tab:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-bg); }
+    .act-tab.active { background: var(--brand); color: #fff; border-color: var(--brand); box-shadow: 0 2px 8px rgba(79,70,229,0.3); }
+    .act-panel { display: none; }
+    .act-panel.active { display: block; }
+
+    /* ════ RADIO ════ */
+    .radio-group { display: flex; gap: 12px; margin-top: 6px; }
+    .radio-opt { flex: 1; border: 2px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-2); transition: all 0.15s; }
+    .radio-opt:hover { border-color: var(--brand); }
+    .radio-opt.sel-approve { border-color: var(--success); color: #065f46; background: #d1fae5; }
+    .radio-opt.sel-reject  { border-color: var(--danger);  color: #991b1b; background: #fee2e2; }
+
+    /* ════ MODAL ════ */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.5); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--card); border-radius: 14px; width: 660px; max-width: 95vw; max-height: 88vh; overflow-y: auto; position: relative; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(15,23,42,0.2); }
+    .modal-header { padding: 22px 24px 18px; border-bottom: 1px solid var(--border); position: relative; }
+    .modal-title { font-size: 17px; font-weight: 700; color: var(--text-1); }
+    .modal-sub   { font-size: 13px; color: var(--text-3); margin-top: 3px; }
+    .modal-close { position: absolute; top: 18px; right: 20px; background: #f1f5f9; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 14px; color: var(--text-2); display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { background: #e2e8f0; }
+    .modal-body { padding: 22px 24px; }
+    .modal-section { margin-bottom: 22px; }
+    .modal-section-title { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .detail-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+    .detail-box .dl { font-size: 11px; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .detail-box .dv { font-size: 14px; font-weight: 600; color: var(--text-1); }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { background: var(--brand-bg); color: var(--brand); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+
+    /* ════ STATUS PAGE ════ */
+    .status-metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 16px; }
+    .sm-box { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+    .sm-box .smv { font-size: 22px; font-weight: 800; color: var(--text-1); }
+    .sm-box .sml { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; font-weight: 600; }
+
+    /* ════ GRID LAYOUTS ════ */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+    /* ════ SPINNER ════ */
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ════ WEIGHT WARN ════ */
+    .weight-warn { font-size: 12px; color: #92400e; background: #fef3c7; border: 1px solid #fcd34d; border-radius: 6px; padding: 8px 12px; margin-top: 8px; display: none; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+<!-- ════ LOGIN ════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-brand">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="fg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%"   stop-color="#e8c97a"/>
+            <stop offset="50%"  stop-color="#c9a24a"/>
+            <stop offset="100%" stop-color="#8a6520"/>
+          </linearGradient>
+          <radialGradient id="nb" cx="40%" cy="50%" r="55%">
+            <stop offset="0%"   stop-color="#0d2535"/>
+            <stop offset="100%" stop-color="#071520"/>
+          </radialGradient>
+        </defs>
+        <circle cx="38" cy="46" r="34" fill="url(#nb)"/>
+        <line x1="22" y1="30" x2="34" y2="22" stroke="#c9a24a" stroke-width="1.2" stroke-opacity="0.8"/>
+        <line x1="22" y1="30" x2="16" y2="44" stroke="#c9a24a" stroke-width="1.2" stroke-opacity="0.8"/>
+        <line x1="22" y1="30" x2="30" y2="48" stroke="#c9a24a" stroke-width="1.2" stroke-opacity="0.8"/>
+        <line x1="16" y1="44" x2="30" y2="48" stroke="#c9a24a" stroke-width="1.2" stroke-opacity="0.8"/>
+        <line x1="34" y1="22" x2="40" y2="36" stroke="#c9a24a" stroke-width="1" stroke-opacity="0.5"/>
+        <circle cx="34" cy="22" r="3"   fill="#c9a24a"/>
+        <circle cx="22" cy="30" r="3.5" fill="#c9a24a"/>
+        <circle cx="16" cy="44" r="2.5" fill="#c9a24a"/>
+        <circle cx="30" cy="48" r="3"   fill="#c9a24a"/>
+        <circle cx="40" cy="36" r="2"   fill="#c9a24a" fill-opacity="0.7"/>
+        <path d="M55 14 C63 14 72 21 74 30 C76 37 73 43 70 46 L75 52 C77 55 75 59 72 60 L70 61 C69 67 65 73 60 76 L58 80 C56 83 53 85 51 83 L49 80 C48 77 50 74 52 73 L54 68 C50 66 47 61 47 55 L47 51 C44 49 42 45 43 41 C42 36 45 30 49 27 C50 21 52 15 55 14 Z" fill="url(#fg)"/>
+        <path d="M67 34 L73 37 L67 40 Z" fill="#0d1f2d"/>
+        <path d="M51 83 C48 89 46 96 45 100" stroke="#c9a24a" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+      </svg>
+      <div>
+        <div class="login-brand-name">Connec<em>TEQ</em></div>
+        <div class="login-tagline">AI-Powered Hiring Intelligence Platform</div>
+      </div>
+    </div>
+    <label class="login-label">API Key</label>
+    <input type="password" class="login-input" id="api-key-input" placeholder="Enter your API key" onkeydown="if(event.key==='Enter')unlock()"/>
+    <button class="login-btn" onclick="unlock()">Access Dashboard →</button>
+    <div class="login-err" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ════ APP ════ -->
+<div id="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <svg viewBox="0 0 100 100" fill="none" width="32" height="32">
+      <defs>
+        <linearGradient id="sfg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#e8c97a"/>
+          <stop offset="100%" stop-color="#8a6520"/>
+        </linearGradient>
+        <radialGradient id="snb" cx="40%" cy="50%" r="55%">
+          <stop offset="0%" stop-color="#1a3550"/>
+          <stop offset="100%" stop-color="#0d1f2d"/>
+        </radialGradient>
+      </defs>
+      <circle cx="38" cy="46" r="34" fill="url(#snb)"/>
+      <line x1="22" y1="30" x2="34" y2="22" stroke="#c9a24a" stroke-width="1.5" stroke-opacity="0.9"/>
+      <line x1="22" y1="30" x2="16" y2="44" stroke="#c9a24a" stroke-width="1.5" stroke-opacity="0.9"/>
+      <line x1="22" y1="30" x2="30" y2="48" stroke="#c9a24a" stroke-width="1.5" stroke-opacity="0.9"/>
+      <line x1="16" y1="44" x2="30" y2="48" stroke="#c9a24a" stroke-width="1.5" stroke-opacity="0.9"/>
+      <circle cx="34" cy="22" r="3" fill="#c9a24a"/>
+      <circle cx="22" cy="30" r="3.5" fill="#c9a24a"/>
+      <circle cx="16" cy="44" r="2.5" fill="#c9a24a"/>
+      <circle cx="30" cy="48" r="3" fill="#c9a24a"/>
+      <path d="M55 14 C63 14 72 21 74 30 C76 37 73 43 70 46 L75 52 C77 55 75 59 72 60 L70 61 C69 67 65 73 60 76 L58 80 C56 83 53 85 51 83 L49 80 C48 77 50 74 52 73 L54 68 C50 66 47 61 47 55 L47 51 C44 49 42 45 43 41 C42 36 45 30 49 27 C50 21 52 15 55 14 Z" fill="url(#sfg)"/>
+      <path d="M67 34 L73 37 L67 40 Z" fill="#0d1f2d"/>
+    </svg>
+    <div class="sb-brand-name">Connec<em>TEQ</em></div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Main</div>
+    <div class="sb-item active" onclick="nav('dashboard',this)">
+      <span class="sb-icon">📊</span> Dashboard
+    </div>
+    <div class="sb-item" onclick="nav('candidates',this)">
+      <span class="sb-icon">👥</span> Candidates <span id="sb-candidate-count" style="margin-left:auto;font-size:11px;font-weight:700;background:rgba(255,255,255,0.15);padding:1px 7px;border-radius:20px;display:none;"></span>
+    </div>
+  </div>
+
+  <div class="sb-divider"></div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Workflow</div>
+    <div class="sb-item" onclick="nav('jobs',this)">
+      <span class="sb-icon">💼</span> Jobs
+    </div>
+    <div class="sb-item" onclick="nav('upload',this)">
+      <span class="sb-icon">📤</span> Manual Upload
+    </div>
+    <div class="sb-item" onclick="nav('actions',this)">
+      <span class="sb-icon">⚡</span> Actions
+    </div>
+    <div class="sb-item" onclick="nav('analytics',this)">
+      <span class="sb-icon">📈</span> Analytics
+    </div>
+    <div class="sb-item admin-only" onclick="nav('audit',this)" style="display:none;">
+      <span class="sb-icon">🔍</span> Audit Log
+    </div>
+  </div>
+
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-avatar">HR</div>
+      <div>
+        <div class="sb-user-name">HR Manager</div>
+        <div class="sb-user-role">Recruiter</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1 id="topbar-title">Dashboard</h1>
+      <p id="topbar-desc">Pipeline overview across all candidates</p>
+    </div>
+    <div class="topbar-right">
+      <span id="role-badge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.3px;"></span>
+      <button class="btn btn-outline btn-sm" id="refresh-btn" onclick="refreshDashboard()">↻ Refresh</button>
+      <button class="btn btn-primary btn-sm" onclick="nav('upload', document.querySelectorAll('.sb-item')[3])">+ New Candidate</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon purple">🧑‍💼</div>
+          <div><div class="stat-val" id="d-total">—</div><div class="stat-lbl">Total Applied</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">✅</div>
+          <div><div class="stat-val" id="d-shortlisted">—</div><div class="stat-lbl">Shortlisted</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon amber">🎙️</div>
+          <div><div class="stat-val" id="d-interview">—</div><div class="stat-lbl">In Interview</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon teal">🏆</div>
+          <div><div class="stat-val" id="d-approved">—</div><div class="stat-lbl">Approved</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">❌</div>
+          <div><div class="stat-val" id="d-rejected">—</div><div class="stat-lbl">Rejected</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Recent Candidates</span>
+          <button class="btn btn-outline btn-sm" onclick="nav('candidates', document.querySelectorAll('.sb-item')[1])">View All →</button>
+        </div>
+        <div id="dashboard-table-wrap"><div class="empty"><div class="empty-icon">📭</div><p>Click Refresh to load.</p></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ CANDIDATES ═══ -->
+    <div class="panel" id="panel-candidates">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">All Candidates</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" id="candidate-search" class="form-input" style="width:220px;padding:7px 12px;font-size:13px;" placeholder="🔍  Search by name, email, role..." oninput="filterCandidates()"/>
+            <select id="candidate-filter" class="form-select" style="width:140px;padding:7px 10px;font-size:13px;" onchange="filterCandidates()">
+              <option value="">All Stages</option>
+              <option value="shortlisted">Shortlisted</option>
+              <option value="scheduled">In Interview</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+            <button class="btn btn-outline btn-sm" onclick="loadCandidates()">↻</button>
+          </div>
+        </div>
+        <div id="candidates-table-wrap"><div class="empty"><div class="empty-icon">📭</div><p>Click Refresh to load.</p></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ UPLOAD ═══ -->
+    <div class="panel" id="panel-upload">
+      <div class="grid-2">
+        <div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Resume & Format</span></div>
+            <div class="card-body">
+              <div class="form-group">
+                <div class="file-drop" id="file-drop"
+                     onclick="document.getElementById('resume-input').click()"
+                     ondragover="event.preventDefault();this.classList.add('drag-over')"
+                     ondragleave="this.classList.remove('drag-over')"
+                     ondrop="handleDrop(event)">
+                  <input type="file" id="resume-input" accept=".pdf,.docx" onchange="handleFile(this.files[0])"/>
+                  <div class="fd-icon">📄</div>
+                  <p><strong>Click to upload</strong> or drag & drop</p>
+                  <p style="font-size:12px;margin-top:4px;">PDF or DOCX · max 10MB</p>
+                </div>
+                <div class="file-name" id="file-name"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Interview Format</label>
+                <select class="form-select" id="interview-format">
+                  <option value="video">📹 Video Call</option>
+                  <option value="phone">📞 Phone Screen</option>
+                  <option value="onsite">🏢 Onsite</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><span class="card-title">Scoring Weights</span></div>
+            <div class="card-body">
+              <div class="slider-row"><span class="slider-label">Skills</span><input type="range" min="0" max="1" step="0.05" value="0.4" oninput="updateSlider(this,'sv-skills')"/><span class="slider-val" id="sv-skills">0.40</span></div>
+              <div class="slider-row"><span class="slider-label">Experience</span><input type="range" min="0" max="1" step="0.05" value="0.3" oninput="updateSlider(this,'sv-experience')"/><span class="slider-val" id="sv-experience">0.30</span></div>
+              <div class="slider-row"><span class="slider-label">Education</span><input type="range" min="0" max="1" step="0.05" value="0.2" oninput="updateSlider(this,'sv-education')"/><span class="slider-val" id="sv-education">0.20</span></div>
+              <div class="slider-row"><span class="slider-label">Culture Fit</span><input type="range" min="0" max="1" step="0.05" value="0.1" oninput="updateSlider(this,'sv-culture')"/><span class="slider-val" id="sv-culture">0.10</span></div>
+              <div class="weight-warn" id="weight-warn">⚠️ Weights don't sum to 1.0 — will be normalized automatically.</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card" style="height:calc(100% - 0px);">
+            <div class="card-head"><span class="card-title">Job Description</span></div>
+            <div class="card-body">
+              <div class="form-group">
+                <textarea class="form-textarea" id="raw-jd" style="min-height:340px;" placeholder="Paste the full job description here...&#10;&#10;Minimum 100 characters required."></textarea>
+              </div>
+              <button class="btn btn-primary btn-full" id="submit-btn" data-label="Submit Candidate" onclick="submitResume()">Submit Candidate</button>
+              <div class="alert alert-success" id="upload-success"></div>
+              <div class="alert alert-error"   id="upload-error"></div>
+              <div class="alert alert-warning" id="upload-duplicate"></div>
+              <div class="id-box" id="candidate-id-box"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ JOBS ═══ -->
+    <div class="panel" id="panel-jobs">
+      <div class="grid-2" style="align-items:start;">
+
+        <!-- Create job form -->
+        <div class="card">
+          <div class="card-head"><span class="card-title">Post a New Job</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Job Title</label>
+              <input type="text" class="form-input" id="jb-title" placeholder="e.g. Senior Backend Engineer"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Job Description</label>
+              <textarea class="form-textarea" id="jb-jd" style="min-height:200px;" placeholder="Paste the full job description..."></textarea>
+            </div>
+            <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Interview Format</label>
+                <select class="form-select" id="jb-format">
+                  <option value="video">📹 Video Call</option>
+                  <option value="phone">📞 Phone Screen</option>
+                  <option value="onsite">🏢 Onsite</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Max Applicants <span style="font-size:11px;color:var(--text-3);font-weight:400;text-transform:none;letter-spacing:0;">(0 = unlimited)</span></label>
+                <input type="number" class="form-input" id="jb-max" min="0" value="0" placeholder="e.g. 50"/>
+              </div>
+            </div>
+            <div style="margin-bottom:18px;">
+              <div class="form-label" style="margin-bottom:12px;">Scoring Weights</div>
+              <div class="slider-row"><span class="slider-label">Skills</span><input type="range" min="0" max="1" step="0.05" value="0.4" oninput="updateSlider(this,'jb-sv-skills')"/><span class="slider-val" id="jb-sv-skills">0.40</span></div>
+              <div class="slider-row"><span class="slider-label">Experience</span><input type="range" min="0" max="1" step="0.05" value="0.3" oninput="updateSlider(this,'jb-sv-experience')"/><span class="slider-val" id="jb-sv-experience">0.30</span></div>
+              <div class="slider-row"><span class="slider-label">Education</span><input type="range" min="0" max="1" step="0.05" value="0.2" oninput="updateSlider(this,'jb-sv-education')"/><span class="slider-val" id="jb-sv-education">0.20</span></div>
+              <div class="slider-row"><span class="slider-label">Culture Fit</span><input type="range" min="0" max="1" step="0.05" value="0.1" oninput="updateSlider(this,'jb-sv-culture')"/><span class="slider-val" id="jb-sv-culture">0.10</span></div>
+            </div>
+            <button class="btn btn-primary btn-full" id="jb-submit-btn" data-label="Post Job" onclick="createJob()">Post Job</button>
+            <div class="alert alert-success" id="jb-success"></div>
+            <div class="alert alert-error"   id="jb-error"></div>
+          </div>
+        </div>
+
+        <!-- Job listings -->
+        <div>
+          <div class="card">
+            <div class="card-head">
+              <span class="card-title">Active Job Postings</span>
+              <button class="btn btn-outline btn-sm" onclick="loadJobs()">↻ Refresh</button>
+            </div>
+            <div id="jobs-list-wrap">
+              <div class="empty"><div class="empty-icon">💼</div><p>No jobs posted yet.</p></div>
+            </div>
+          </div>
+
+          <!-- Apply link preview -->
+          <div class="card" id="apply-link-card" style="display:none;">
+            <div class="card-head"><span class="card-title">Shareable Apply Link</span></div>
+            <div class="card-body">
+              <p style="font-size:13px;color:var(--text-2);margin-bottom:12px;">Send this link to candidates. They can upload their resume directly — no HR involvement needed.</p>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="text" class="form-input" id="apply-link-input" readonly style="font-family:monospace;font-size:12px;"/>
+                <button class="btn btn-outline btn-sm" onclick="copyApplyLink()" style="white-space:nowrap;">Copy Link</button>
+              </div>
+              <div style="margin-top:10px;display:flex;gap:8px;">
+                <button class="btn btn-primary btn-sm" onclick="openApplyPage()">Open Page</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ ACTIONS ═══ -->
+    <div class="panel" id="panel-actions">
+      <div class="card" style="max-width:620px;">
+        <div class="card-head"><span class="card-title">Pipeline Actions</span></div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">Candidate ID</label>
+            <input type="text" class="form-input" id="action-candidate-id" placeholder="Paste candidate UUID"/>
+          </div>
+
+          <div class="act-tabs">
+            <div class="act-tab active" onclick="showAction('complete',this)">✅ Mark Complete</div>
+            <div class="act-tab" onclick="showAction('transcript',this)">📄 Upload Transcript</div>
+            <div class="act-tab" onclick="showAction('cancel',this)">🚫 Cancel</div>
+            <div class="act-tab" onclick="showAction('decision',this)">⚖️ Decision</div>
+          </div>
+
+          <div class="act-panel active" id="ap-complete">
+            <p style="font-size:13px;color:var(--text-3);margin-bottom:16px;">Confirm the interview is done. The pipeline resumes to scorecard ingestion.</p>
+            <button class="btn btn-primary" onclick="markComplete()">Confirm Interview Completed</button>
+          </div>
+
+          <div class="act-panel" id="ap-transcript">
+            <div class="form-group">
+              <label class="form-label">Transcript File</label>
+              <div class="file-drop" onclick="document.getElementById('transcript-input').click()" style="padding:20px;">
+                <input type="file" id="transcript-input" accept=".txt,.vtt" onchange="handleTranscriptFile(this.files[0])"/>
+                <div class="fd-icon" style="font-size:20px;">📝</div>
+                <p><strong>Click to upload</strong> — .txt or .vtt</p>
+              </div>
+              <div class="file-name" id="transcript-file-name"></div>
+            </div>
+            <button class="btn btn-primary" onclick="uploadTranscript()">Upload & Resume Pipeline</button>
+          </div>
+
+          <div class="act-panel" id="ap-cancel">
+            <div class="form-group">
+              <label class="form-label">Cancellation Reason</label>
+              <input type="text" class="form-input" id="cancel-reason" placeholder="e.g. Candidate withdrew, no-show"/>
+            </div>
+            <button class="btn btn-danger" onclick="cancelInterview()">Cancel Interview</button>
+          </div>
+
+          <div class="act-panel" id="ap-decision">
+            <div class="form-group">
+              <label class="form-label">Decision</label>
+              <div class="radio-group">
+                <div class="radio-opt" id="opt-approve" onclick="selectDecision('approved')">✅ Approve</div>
+                <div class="radio-opt" id="opt-reject"  onclick="selectDecision('rejected')">❌ Reject</div>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="submitDecision()">Submit Decision</button>
+          </div>
+
+          <div class="alert alert-success" id="action-success"></div>
+          <div class="alert alert-error"   id="action-error"></div>
+        </div>
+      </div>
+
+      <!-- Danger zone — admin only -->
+      <div class="card admin-only" style="max-width:620px;margin-top:24px;border-color:#fecaca;">
+        <div class="card-head" style="background:#fff5f5;">
+          <span class="card-title" style="color:#b91c1c;">Danger Zone</span>
+        </div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--text-2);margin-bottom:16px;">
+            <strong>Clear orphaned candidates</strong> — removes pipeline checkpoints for candidates
+            whose job posting no longer exists (e.g. after a database wipe during a redeploy).
+            This does <em>not</em> affect active candidates.
+          </p>
+          <button class="btn btn-danger" onclick="clearOrphanedCandidates()">Clear Orphaned Candidates</button>
+          <div class="alert alert-success" id="danger-success" style="margin-top:12px;"></div>
+          <div class="alert alert-error"   id="danger-error"   style="margin-top:12px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ANALYTICS ═══ -->
+    <div class="panel" id="panel-analytics">
+      <div id="analytics-wrap">
+        <div class="empty"><div class="empty-icon">📈</div><p>Loading analytics...</p></div>
+      </div>
+    </div>
+
+    <!-- ═══ AUDIT LOG ═══ -->
+    <div class="panel" id="panel-audit">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Audit Log</span>
+          <button class="btn btn-outline btn-sm" onclick="loadAuditLog()">↻ Refresh</button>
+        </div>
+        <div id="audit-wrap">
+          <div class="empty"><div class="empty-icon">🔍</div><p>Loading audit log...</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ════ MODAL ════ -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalBg(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-name">—</div>
+      <div class="modal-sub"   id="modal-sub">—</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-section-title">Pipeline Summary</div>
+        <div class="detail-grid">
+          <div class="detail-box"><div class="dl">Match Score</div><div class="dv" id="md-score">—</div></div>
+          <div class="detail-box"><div class="dl">Decision</div>   <div class="dv" id="md-decision">—</div></div>
+          <div class="detail-box"><div class="dl">Stage</div>      <div class="dv" id="md-stage">—</div></div>
+          <div class="detail-box"><div class="dl">Format</div>     <div class="dv" id="md-format">—</div></div>
+          <div class="detail-box"><div class="dl">Interview</div>  <div class="dv" id="md-interview">—</div></div>
+          <div class="detail-box"><div class="dl">Scheduled At</div><div class="dv" id="md-scheduled">—</div></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Contact</div>
+        <div class="detail-grid">
+          <div class="detail-box"><div class="dl">Email</div><div class="dv" id="md-email">—</div></div>
+          <div class="detail-box"><div class="dl">Candidate ID</div><div class="dv" id="md-id" style="font-family:monospace;font-size:12px;">—</div></div>
+          <div class="detail-box" id="md-job-box" style="display:none;"><div class="dl">Applied Via</div><div class="dv" id="md-job-posting">—</div></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Skills</div>
+        <div class="tag-list" id="md-skills"></div>
+      </div>
+      <div class="modal-section" id="md-rec-section" style="display:none;">
+        <div class="modal-section-title">AI Recommendation</div>
+        <div id="md-rec-flag" style="display:none;background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#92400e;margin-bottom:12px;">
+          ⚠️ <strong>Flag for human review</strong> — Pre and post interview signals are discrepant.
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <div id="md-hire-rec" style="font-size:13px;font-weight:700;padding:5px 14px;border-radius:20px;"></div>
+          <div style="font-size:12px;color:var(--text-3);">Confidence: <span id="md-confidence" style="color:var(--text-2);font-weight:600;"></span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">
+          <div class="detail-box"><div class="dl">Pre-Interview</div><div class="dv" id="md-pre-score">—</div></div>
+          <div class="detail-box"><div class="dl">Post-Interview</div><div class="dv" id="md-post-score">—</div></div>
+          <div class="detail-box"><div class="dl">Final Blended</div><div class="dv" id="md-final-score">—</div></div>
+        </div>
+        <div id="md-rec-summary" style="font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:14px;padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border);"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--success);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Strengths</div>
+            <div id="md-strengths"></div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--danger);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Concerns</div>
+            <div id="md-concerns"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Bias Check -->
+      <div class="modal-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="modal-section-title" style="margin-bottom:0;">Bias Detection</div>
+          <button class="btn btn-outline btn-sm" id="bias-btn" onclick="runBiasCheck()">🔍 Bias Check</button>
+        </div>
+        <p style="font-size:12.5px;color:var(--text-3);margin-bottom:8px;">Checks if demographic signals in the resume (name, institution, graduation year) could have influenced the AI score.</p>
+        <div id="bias-wrap" style="display:none;"></div>
+      </div>
+
+      <!-- Interview Questions -->
+      <div class="modal-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="modal-section-title" style="margin-bottom:0;">Interview Questions</div>
+          <button class="btn btn-outline btn-sm" id="gen-q-btn" onclick="generateQuestions()">✨ Suggest Questions</button>
+        </div>
+        <div id="md-questions" style="display:none;">
+          <div id="md-q-technical"  style="margin-bottom:16px;"></div>
+          <div id="md-q-gap"        style="margin-bottom:16px;"></div>
+          <div id="md-q-behavioral" style="margin-bottom:0;"></div>
+        </div>
+        <div id="md-q-placeholder" style="font-size:13px;color:var(--text-3);">
+          Click "Suggest Questions" to generate tailored interview questions for this candidate.
+        </div>
+      </div>
+
+      <div class="alert alert-error" id="modal-error"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="downloadResume()">⬇ Download Resume</button>
+      <button class="btn btn-outline" onclick="prefillActions()">⚡ Open in Actions</button>
+      <button class="btn btn-danger admin-only" onclick="deleteCandidate()" style="margin-left:auto;">🗑 Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_BASE = window.location.origin;
+  let API_KEY = "";
+  let allCandidates = [];
+  let sortKey = "name", sortAsc = true;
+  let selectedFile = null, selectedTranscriptFile = null, selectedDecision = null;
+  let activeCandidateId = null;
+
+  const PANEL_META = {
+    dashboard:  { title:"Dashboard",      desc:"Pipeline overview across all candidates" },
+    candidates: { title:"All Candidates", desc:"Every candidate and their current pipeline stage" },
+    jobs:       { title:"Jobs",           desc:"Post job openings and share apply links with candidates" },
+    upload:     { title:"Manual Upload",  desc:"Manually submit a resume on behalf of a candidate (referrals, direct applications)" },
+    actions:    { title:"Actions",        desc:"Resume, cancel, or finalize a candidate's pipeline" },
+    analytics:  { title:"Analytics",       desc:"Pipeline funnel, pass rates, score distribution and skill trends" },
+    audit:      { title:"Audit Log",      desc:"Full trail of every action taken — who did what, when" },
+  };
+  let activeJobId = null;
+  let currentRole = "recruiter";
+
+  function h(json) {
+    const base = { "X-API-Key": API_KEY, "Accept": "application/json" };
+    return json ? { ...base, "Content-Type": "application/json" } : base;
+  }
+
+  // ── Login ──
+  async function unlock() {
+    const key = document.getElementById("api-key-input").value.trim();
+    const err = document.getElementById("login-error");
+    err.style.display = "none";
+    if (!key) { err.textContent = "Please enter your API key."; err.style.display = "block"; return; }
+    let detectedRole = null;
+    try {
+      const res = await fetch(API_BASE + "/candidates", { headers: { "X-API-Key": key } });
+      if (res.status === 401) { err.textContent = "Invalid API key. Please try again."; err.style.display = "block"; return; }
+      // probe admin by calling audit-logs endpoint
+      const adminProbe = await fetch(API_BASE + "/audit-logs?limit=1", { headers: { "X-API-Key": key } });
+      detectedRole = adminProbe.ok ? "admin" : "recruiter";
+    } catch { err.textContent = "Could not reach API — make sure the server is running."; err.style.display = "block"; return; }
+    API_KEY = key;
+    currentRole = detectedRole;
+    applyRoleUI();
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("app").style.display = "flex";
+    refreshDashboard();
+  }
+
+  function applyRoleUI() {
+    const isAdmin = currentRole === "admin";
+    // show/hide admin-only sidebar items and panels
+    document.querySelectorAll(".admin-only").forEach(function(el) {
+      el.style.display = isAdmin ? "" : "none";
+    });
+    // update sidebar role label
+    document.querySelector(".sb-user-role").textContent = isAdmin ? "Admin" : "Recruiter";
+    // show role badge on topbar
+    const badge = document.getElementById("role-badge");
+    if (badge) {
+      badge.textContent = isAdmin ? "Admin" : "Recruiter";
+      badge.style.background  = isAdmin ? "#ede9fe" : "#dbeafe";
+      badge.style.color       = isAdmin ? "#6d28d9" : "#1e40af";
+    }
+  }
+
+  // ── Navigation ──
+  function nav(name, el) {
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    document.querySelectorAll(".sb-item").forEach(n => n.classList.remove("active"));
+    document.getElementById("panel-" + name).classList.add("active");
+    if (el) el.classList.add("active");
+    document.getElementById("topbar-title").textContent = PANEL_META[name].title;
+    document.getElementById("topbar-desc").textContent  = PANEL_META[name].desc;
+    document.getElementById("refresh-btn").style.display = name === "dashboard" ? "" : "none";
+    if (name === "dashboard")  refreshDashboard();
+    if (name === "candidates") loadCandidates();
+    if (name === "jobs")       loadJobs();
+    if (name === "analytics")  loadAnalytics();
+    if (name === "audit")      loadAuditLog();
+  }
+
+  // ── Fetch candidates ──
+  async function fetchCandidates() {
+    const res = await fetch(`${API_BASE}/candidates`, { headers: h() });
+    if (!res.ok) throw new Error((await res.json()).detail || res.statusText);
+    return res.json();
+  }
+
+  async function refreshDashboard() {
+    try {
+      const data = await fetchCandidates();
+      allCandidates = data.candidates;
+      const badge = document.getElementById("sb-candidate-count");
+      if (allCandidates.length) { badge.textContent = allCandidates.length; badge.style.display = ""; }
+      else { badge.style.display = "none"; }
+      const s = data.summary;
+      document.getElementById("d-total").textContent      = s.total;
+      document.getElementById("d-shortlisted").textContent = s.shortlisted;
+      document.getElementById("d-interview").textContent  = s.in_interview;
+      document.getElementById("d-approved").textContent   = s.approved;
+      document.getElementById("d-rejected").textContent   = s.rejected;
+      document.getElementById("dashboard-table-wrap").innerHTML = buildTable(allCandidates.slice(0,6), true);
+    } catch(e) {
+      document.getElementById("dashboard-table-wrap").innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><p>${e.message}</p></div>`;
+    }
+  }
+
+  async function loadCandidates() {
+    document.getElementById("candidates-table-wrap").innerHTML = `<div class="empty"><div class="empty-icon">⏳</div><p>Loading...</p></div>`;
+    try {
+      const data = await fetchCandidates();
+      allCandidates = data.candidates;
+      const badge = document.getElementById("sb-candidate-count");
+      if (allCandidates.length) { badge.textContent = allCandidates.length; badge.style.display = ""; }
+      else { badge.style.display = "none"; }
+      renderTable();
+    } catch(e) {
+      document.getElementById("candidates-table-wrap").innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><p>${e.message}</p></div>`;
+    }
+  }
+
+  function renderTable() {
+    const q   = (document.getElementById("candidate-search")?.value || "").toLowerCase();
+    const stg = (document.getElementById("candidate-filter")?.value || "");
+    const list = allCandidates.filter(function(c) {
+      const matchText = !q
+        || (c.name  || "").toLowerCase().includes(q)
+        || (c.email || "").toLowerCase().includes(q)
+        || (c.job_title || "").toLowerCase().includes(q);
+      const matchStage = !stg
+        || (stg === "shortlisted" && c.shortlisted && c.interview_status !== "scheduled")
+        || (stg === "scheduled"   && c.interview_status === "scheduled")
+        || (stg === "approved"    && c.decision === "approved")
+        || (stg === "rejected"    && c.decision === "rejected");
+      return matchText && matchStage;
+    });
+    document.getElementById("candidates-table-wrap").innerHTML = buildTable(list, false);
+  }
+
+  function filterCandidates() { renderTable(); }
+
+  function sortBy(key) {
+    sortKey === key ? sortAsc = !sortAsc : (sortKey = key, sortAsc = true);
+    allCandidates.sort((a,b) => { const av = a[key]??'', bv = b[key]??''; return sortAsc?(av>bv?1:-1):(av<bv?1:-1); });
+    renderTable();
+  }
+
+  function initials(name) {
+    if (!name) return "?";
+    return name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+  }
+
+  function buildTable(list, compact) {
+    if (!list.length) return `<div class="empty"><div class="empty-icon">👤</div><p>No candidates found.</p></div>`;
+    const si = k => sortKey===k?(sortAsc?" ↑":" ↓"):"";
+    const rows = list.map(function(c) {
+      const sc = c.match_score;
+      const scTxt = sc != null ? sc.toFixed(1) : "-";
+      const dotCls = sc >= 7 ? "high" : sc >= 5 ? "mid" : "low";
+      const dec = c.decision;
+      const badge = dec==="approved"
+        ? '<span class="badge badge-green">Approved</span>'
+        : dec==="rejected"
+        ? '<span class="badge badge-red">Rejected</span>'
+        : '<span class="badge badge-blue">' + ((c.stage||"").replace("completed - ","") || "In Progress") + '</span>';
+      const statusCol = compact ? "" : "<td>" + badge + "</td>";
+      return '<tr onclick="openModal(\'' + c.candidate_id + '\')">'
+        + '<td><div class="td-candidate"><div class="td-avatar">' + initials(c.name) + '</div>'
+        + '<div><div class="td-name">' + (c.name||"-") + '</div>'
+        + '<div class="td-email">' + (c.email||"") + '</div></div></div></td>'
+        + '<td style="color:var(--text-2);">' + (c.job_title||"-") + '</td>'
+        + '<td><span class="score-pill"><span class="score-dot ' + dotCls + '"></span>' + scTxt + '</span></td>'
+        + statusCol
+        + '<td><span class="badge badge-gray">' + (c.interview_format||"-") + '</span></td>'
+        + '</tr>';
+    }).join("");
+    const thName    = compact ? "<th>Candidate</th>" : '<th onclick="sortBy(\'name\')">Candidate' + si("name") + "</th>";
+    const thRole    = compact ? "<th>Role</th>"      : '<th onclick="sortBy(\'job_title\')">Role' + si("job_title") + "</th>";
+    const thScore   = compact ? "<th>Score</th>"     : '<th onclick="sortBy(\'match_score\')">Score' + si("match_score") + "</th>";
+    const thStatus  = compact ? "" : '<th onclick="sortBy(\'decision\')">Status' + si("decision") + "</th>";
+    return '<div class="table-wrap"><table>'
+      + "<thead><tr>" + thName + thRole + thScore + thStatus + "<th>Format</th></tr></thead>"
+      + "<tbody>" + rows + "</tbody>"
+      + "</table></div>";
+  }
+
+  // ── Modal ──
+  function openModal(id) {
+    const c = allCandidates.find(x => x.candidate_id === id);
+    if (!c) return;
+    activeCandidateId = id;
+    document.getElementById("modal-name").textContent    = c.name || "Unknown";
+    document.getElementById("modal-sub").textContent     = (c.job_title||"-") + " | " + (c.email||"-");
+    document.getElementById("md-score").textContent      = c.match_score != null ? c.match_score.toFixed(1)+"/10" : "-";
+    document.getElementById("md-decision").textContent   = c.decision || "Pending";
+    document.getElementById("md-stage").textContent      = c.stage || "-";
+    document.getElementById("md-format").textContent     = c.interview_format || "-";
+    document.getElementById("md-interview").textContent  = c.interview_status || "-";
+    document.getElementById("md-scheduled").textContent  = c.scheduled_at ? new Date(c.scheduled_at).toLocaleString() : "Not scheduled";
+    document.getElementById("md-email").textContent      = c.email || "-";
+    document.getElementById("md-id").textContent         = id;
+    document.getElementById("md-skills").innerHTML       = '<span style="font-size:12px;color:var(--text-3);">Loading...</span>';
+    document.getElementById("modal-error").style.display = "none";
+    // reset questions panel
+    document.getElementById("md-questions").style.display    = "none";
+    document.getElementById("md-q-placeholder").style.display = "";
+    document.getElementById("md-q-placeholder").textContent  = 'Click "Suggest Questions" to generate tailored interview questions for this candidate.';
+    document.getElementById("gen-q-btn").disabled    = false;
+    document.getElementById("gen-q-btn").textContent = "✨ Suggest Questions";
+    document.getElementById("bias-wrap").style.display = "none";
+    document.getElementById("bias-btn").disabled    = false;
+    document.getElementById("bias-btn").textContent = "🔍 Bias Check";
+    loadSkills(id);
+    document.getElementById("modal-overlay").classList.add("open");
+  }
+
+  async function loadSkills(id) {
+    try {
+      const res  = await fetch(API_BASE + "/candidate/" + id + "/status", { headers: h() });
+      const data = await res.json();
+
+      // Job posting source
+      if (data.job_posting_title && data.job_id) {
+        document.getElementById("md-job-posting").textContent = data.job_posting_title;
+        document.getElementById("md-job-box").style.display = "";
+      } else {
+        document.getElementById("md-job-box").style.display = "none";
+      }
+
+      // Skills
+      const skills = data.skills || [];
+      document.getElementById("md-skills").innerHTML = skills.length
+        ? skills.map(function(s){ return '<span class="tag">' + s + '</span>'; }).join("")
+        : '<span style="font-size:12px;color:var(--text-3);">No skills data</span>';
+
+      // Recommendation
+      const rec = data.recommendation || {};
+      const hr  = rec.hire_recommendation;
+      if (hr) {
+        document.getElementById("md-rec-section").style.display = "";
+        const recLabels = {
+          strong_yes: { label:"Strong Yes",  bg:"#d1fae5", color:"#065f46" },
+          yes:        { label:"Yes",          bg:"#dcfce7", color:"#166534" },
+          no:         { label:"No",           bg:"#fee2e2", color:"#991b1b" },
+          strong_no:  { label:"Strong No",    bg:"#fecaca", color:"#7f1d1d" },
+        };
+        const meta = recLabels[hr] || { label: hr, bg:"#f1f5f9", color:"#475569" };
+        const badge = document.getElementById("md-hire-rec");
+        badge.textContent = meta.label;
+        badge.style.background = meta.bg;
+        badge.style.color      = meta.color;
+
+        document.getElementById("md-confidence").textContent  = rec.confidence || "-";
+        document.getElementById("md-pre-score").textContent   = rec.pre_interview_score  != null ? rec.pre_interview_score.toFixed(1)  + "/10" : "-";
+        document.getElementById("md-post-score").textContent  = rec.post_interview_score != null ? rec.post_interview_score.toFixed(1) + "/10" : "-";
+        document.getElementById("md-final-score").textContent = rec.final_score          != null ? rec.final_score.toFixed(1)          + "/10" : "-";
+        document.getElementById("md-rec-summary").textContent = rec.summary || "";
+        document.getElementById("md-rec-flag").style.display  = rec.flag_for_human ? "" : "none";
+
+        const mkList = function(items, color) {
+          return (items || []).length
+            ? items.map(function(s){ return '<div style="font-size:12.5px;color:' + color + ';padding:4px 0;border-bottom:1px solid var(--border);">• ' + s + '</div>'; }).join("")
+            : '<div style="font-size:12px;color:var(--text-3);">None noted</div>';
+        };
+        document.getElementById("md-strengths").innerHTML = mkList(rec.strengths, "var(--success)");
+        document.getElementById("md-concerns").innerHTML  = mkList(rec.concerns,  "var(--danger)");
+      } else {
+        document.getElementById("md-rec-section").style.display = "none";
+      }
+    } catch {}
+  }
+
+  async function downloadResume() {
+    document.getElementById("modal-error").style.display = "none";
+    try {
+      const res = await fetch(`${API_BASE}/candidate/${activeCandidateId}/resume`, { headers: h() });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Failed.");
+      window.open(data.url, "_blank");
+    } catch(e) { showAlert("modal-error", "Could not fetch resume: "+e.message); }
+  }
+
+  function prefillActions() {
+    document.getElementById("action-candidate-id").value = activeCandidateId;
+    closeModal();
+    nav("actions", document.querySelectorAll(".sb-item")[4]);
+  }
+
+  function closeModal()         { document.getElementById("modal-overlay").classList.remove("open"); activeCandidateId = null; }
+  function closeModalBg(e)      { if (e.target === document.getElementById("modal-overlay")) closeModal(); }
+
+  async function deleteCandidate() {
+    if (!activeCandidateId) return;
+    const name = document.getElementById("modal-name").textContent || activeCandidateId;
+    if (!confirm("Permanently delete candidate \"" + name + "\"? This cannot be undone.")) return;
+    try {
+      const res = await fetch(API_BASE + "/admin/candidates/" + activeCandidateId, { method: "DELETE", headers: h() });
+      if (res.ok) {
+        closeModal();
+        loadCandidates();
+      } else {
+        const d = await res.json();
+        alert("Delete failed: " + (d.detail || res.status));
+      }
+    } catch(e) { alert("Delete failed: " + e.message); }
+  }
+
+  // ── Sliders ──
+  function updateSlider(el, id) {
+    document.getElementById(id).textContent = parseFloat(el.value).toFixed(2);
+    const total = Array.from(document.querySelectorAll("#panel-upload input[type=range]")).reduce((s,e)=>s+parseFloat(e.value),0);
+    document.getElementById("weight-warn").style.display = Math.abs(total-1.0)>0.01?"block":"none";
+  }
+
+  // ── File handling ──
+  function handleFile(f) { if(!f)return; selectedFile=f; const el=document.getElementById("file-name"); el.textContent="📎 "+f.name; el.style.display="block"; }
+  function handleDrop(e) { e.preventDefault(); document.getElementById("file-drop").classList.remove("drag-over"); handleFile(e.dataTransfer.files[0]); }
+  function handleTranscriptFile(f) { if(!f)return; selectedTranscriptFile=f; const el=document.getElementById("transcript-file-name"); el.textContent="📎 "+f.name; el.style.display="block"; }
+
+  // ── Alerts ──
+  function showAlert(id, msg) { const el=document.getElementById(id); el.textContent=msg; el.style.display="block"; }
+  function hideAlerts(...ids) { ids.forEach(id=>document.getElementById(id).style.display="none"); }
+  function setLoading(btn, on) { btn.disabled=on; btn.innerHTML=on?`<span class="spinner"></span>Processing...`:btn.dataset.label; }
+
+  // ── Upload ──
+  async function submitResume() {
+    const btn = document.getElementById("submit-btn");
+    hideAlerts("upload-success","upload-error","upload-duplicate");
+    document.getElementById("candidate-id-box").style.display="none";
+    if (!selectedFile) return showAlert("upload-error","Please select a resume file.");
+    if (!document.getElementById("raw-jd").value.trim()) return showAlert("upload-error","Please enter a job description.");
+    const [sw,ew,edw,cw] = Array.from(document.querySelectorAll("#panel-upload input[type=range]")).map(s=>parseFloat(s.value));
+    const form = new FormData();
+    form.append("file",selectedFile);
+    form.append("raw_jd",document.getElementById("raw-jd").value);
+    form.append("interview_format",document.getElementById("interview-format").value);
+    form.append("skills_weight",sw); form.append("experience_weight",ew);
+    form.append("education_weight",edw); form.append("culture_fit_weight",cw);
+    setLoading(btn,true);
+    try {
+      const res=await fetch(`${API_BASE}/upload`,{method:"POST",headers:h(),body:form});
+      const data=await res.json();
+      if(res.ok){
+        if(data.status==="DUPLICATE"){ showAlert("upload-duplicate","Duplicate resume — existing ID: "+data.candidate_id); }
+        else { showAlert("upload-success","Candidate queued successfully. Copy the ID below."); const box=document.getElementById("candidate-id-box"); box.textContent=data.candidate_id; box.style.display="block"; }
+      } else { showAlert("upload-error",data.detail||"Upload failed."); }
+    } catch(e) { showAlert("upload-error","Could not reach API: "+e.message); }
+    setLoading(btn,false);
+  }
+
+  // ── Actions ──
+  function showAction(n,el) {
+    document.querySelectorAll(".act-tab").forEach(t=>t.classList.remove("active"));
+    document.querySelectorAll(".act-panel").forEach(p=>p.classList.remove("active"));
+    el.classList.add("active"); document.getElementById("ap-"+n).classList.add("active");
+    hideAlerts("action-success","action-error");
+  }
+  function cid() { return document.getElementById("action-candidate-id").value.trim(); }
+
+  async function markComplete() {
+    if(!cid())return showAlert("action-error","Please enter a candidate ID.");
+    hideAlerts("action-success","action-error");
+    try { const res=await fetch(`${API_BASE}/interview/${cid()}/complete`,{method:"POST",headers:h()}); const data=await res.json(); res.ok?showAlert("action-success","Pipeline resumed — proceeding to scorecard ingestion."):showAlert("action-error",data.detail||"Failed."); } catch(e){showAlert("action-error","Could not reach API: "+e.message);}
+  }
+
+  async function uploadTranscript() {
+    if(!cid())return showAlert("action-error","Please enter a candidate ID.");
+    if(!selectedTranscriptFile)return showAlert("action-error","Please select a transcript file.");
+    hideAlerts("action-success","action-error");
+    const form=new FormData(); form.append("file",selectedTranscriptFile);
+    try { const res=await fetch(`${API_BASE}/interview/${cid()}/transcript`,{method:"POST",headers:h(),body:form}); const data=await res.json(); res.ok?showAlert("action-success","Transcript uploaded. S3 key: "+data.transcript_s3_key):showAlert("action-error",data.detail||"Failed."); } catch(e){showAlert("action-error","Could not reach API: "+e.message);}
+  }
+
+  async function cancelInterview() {
+    const reason=document.getElementById("cancel-reason").value.trim();
+    if(!cid())return showAlert("action-error","Please enter a candidate ID.");
+    if(!reason)return showAlert("action-error","Please enter a cancellation reason.");
+    hideAlerts("action-success","action-error");
+    try { const res=await fetch(`${API_BASE}/interview/${cid()}/cancel`,{method:"POST",headers:h(true),body:JSON.stringify({reason})}); const data=await res.json(); res.ok?showAlert("action-success","Interview cancelled. Candidate marked as rejected."):showAlert("action-error",data.detail||"Failed."); } catch(e){showAlert("action-error","Could not reach API: "+e.message);}
+  }
+
+  function selectDecision(v) {
+    selectedDecision=v;
+    document.getElementById("opt-approve").className="radio-opt"+(v==="approved"?" sel-approve":"");
+    document.getElementById("opt-reject").className ="radio-opt"+(v==="rejected"?" sel-reject":"");
+  }
+
+  async function submitDecision() {
+    if(!cid())return showAlert("action-error","Please enter a candidate ID.");
+    if(!selectedDecision)return showAlert("action-error","Please select a decision.");
+    hideAlerts("action-success","action-error");
+    try { const res=await fetch(`${API_BASE}/candidate/${cid()}/decision`,{method:"POST",headers:h(true),body:JSON.stringify({decision:selectedDecision})}); const data=await res.json(); res.ok?showAlert("action-success","Candidate "+selectedDecision+". Notification email sent."):showAlert("action-error",data.detail||"Failed."); } catch(e){showAlert("action-error","Could not reach API: "+e.message);}
+  }
+
+  // ════ INTERVIEW QUESTIONS ════
+  async function generateQuestions() {
+    const btn = document.getElementById("gen-q-btn");
+    const placeholder = document.getElementById("md-q-placeholder");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Generating...';
+    placeholder.textContent = "Asking AI to analyse the candidate vs job requirements...";
+    document.getElementById("md-questions").style.display = "none";
+
+    try {
+      const res  = await fetch(API_BASE + "/candidate/" + activeCandidateId + "/interview-questions", { headers: h() });
+      const data = await res.json();
+      if (!res.ok) {
+        placeholder.textContent = data.detail || "Failed to generate questions.";
+        btn.disabled = false;
+        btn.textContent = "✨ Suggest Questions";
+        return;
+      }
+      renderQuestions(data.questions);
+    } catch(e) {
+      placeholder.textContent = "Error: " + e.message;
+      btn.disabled = false;
+      btn.textContent = "✨ Suggest Questions";
+    }
+  }
+
+  async function clearOrphanedCandidates() {
+    hideAlerts("danger-success", "danger-error");
+    if (!confirm("This will permanently delete all candidates whose job posting no longer exists. Continue?")) return;
+    try {
+      const res  = await fetch(API_BASE + "/admin/candidates", { method: "DELETE", headers: h() });
+      const data = await res.json();
+      if (!res.ok) return showAlert("danger-error", data.detail || "Failed.");
+      const n = data.deleted || 0;
+      showAlert("danger-success", n === 0
+        ? "No orphaned candidates found — everything looks clean."
+        : `Removed ${n} orphaned candidate${n > 1 ? "s" : ""}. Dashboard will refresh.`
+      );
+      if (n > 0) setTimeout(loadDashboard, 1500);
+    } catch(e) { showAlert("danger-error", e.message); }
+  }
+
+  function renderQuestions(q) {
+    const sections = [
+      { key: "technical",   id: "md-q-technical",  label: "Technical",    color: "#3b82f6", bg: "#eff6ff" },
+      { key: "gap_probing", id: "md-q-gap",         label: "Gap-Probing",  color: "#f59e0b", bg: "#fffbeb" },
+      { key: "behavioral",  id: "md-q-behavioral",  label: "Behavioral",   color: "#10b981", bg: "#f0fdf4" },
+    ];
+    sections.forEach(function(s) {
+      const items = q[s.key] || [];
+      document.getElementById(s.id).innerHTML =
+        '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:' + s.color + ';margin-bottom:10px;">' + s.label + '</div>'
+        + items.map(function(item, i) {
+          return '<div style="background:' + s.bg + ';border:1px solid ' + s.color + '22;border-radius:8px;padding:12px 14px;margin-bottom:8px;">'
+            + '<div style="font-size:13.5px;font-weight:600;color:var(--text-1);margin-bottom:5px;">' + (i+1) + '. ' + item.q + '</div>'
+            + '<div style="font-size:12px;color:var(--text-3);"><em>Why: ' + item.why + '</em></div>'
+            + '</div>';
+        }).join("");
+    });
+    document.getElementById("md-q-placeholder").style.display = "none";
+    document.getElementById("md-questions").style.display = "block";
+    const btn = document.getElementById("gen-q-btn");
+    btn.disabled = false;
+    btn.textContent = "↻ Regenerate";
+  }
+
+  // ════ ANALYTICS ════
+  async function loadAnalytics() {
+    const wrap = document.getElementById("analytics-wrap");
+    wrap.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div><p>Crunching numbers...</p></div>';
+    try {
+      const res  = await fetch(API_BASE + "/analytics", { headers: h() });
+      const data = await res.json();
+      if (!res.ok) { wrap.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>' + (data.detail || "Failed") + '</p></div>'; return; }
+      renderAnalytics(data);
+    } catch(e) {
+      wrap.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>' + e.message + '</p></div>';
+    }
+  }
+
+  function bar(pct, color) {
+    return '<div style="background:#f1f5f9;border-radius:99px;height:8px;flex:1;">'
+      + '<div style="width:' + Math.min(100,pct) + '%;background:' + color + ';height:8px;border-radius:99px;transition:width 0.4s;"></div>'
+      + '</div>';
+  }
+
+  function renderAnalytics(d) {
+    const f  = d.funnel;
+    const r  = d.rates;
+    const max = f.applied || 1;
+
+    const funnelRows = [
+      { label:"Applied",     val:f.applied,     color:"#6366f1" },
+      { label:"Shortlisted", val:f.shortlisted,  color:"#3b82f6" },
+      { label:"Interviewed", val:f.interviewed,  color:"#f59e0b" },
+      { label:"Approved",    val:f.approved,     color:"#10b981" },
+      { label:"Rejected",    val:f.rejected,     color:"#ef4444" },
+    ];
+
+    const funnelHtml = funnelRows.map(function(row) {
+      const pct = Math.round(row.val / max * 100);
+      return '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">'
+        + '<div style="width:90px;font-size:13px;color:var(--text-2);font-weight:500;">' + row.label + '</div>'
+        + bar(pct, row.color)
+        + '<div style="width:50px;text-align:right;font-size:13px;font-weight:700;color:var(--text-1);">' + row.val + '</div>'
+        + '<div style="width:38px;text-align:right;font-size:11px;color:var(--text-3);">' + pct + '%</div>'
+        + '</div>';
+    }).join("");
+
+    const distMax = Math.max(...Object.values(d.score_dist), 1);
+    const distColors = { "0-3":"#ef4444","4-6":"#f59e0b","7-8":"#3b82f6","9-10":"#10b981" };
+    const distHtml = Object.entries(d.score_dist).map(function(kv) {
+      const pct = Math.round(kv[1] / distMax * 100);
+      return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
+        + '<div style="width:36px;font-size:12px;color:var(--text-3);">' + kv[0] + '</div>'
+        + bar(pct, distColors[kv[0]])
+        + '<div style="width:28px;text-align:right;font-size:13px;font-weight:700;">' + kv[1] + '</div>'
+        + '</div>';
+    }).join("");
+
+    const skillsMax = d.top_skills.length ? d.top_skills[0].count : 1;
+    const skillsHtml = d.top_skills.map(function(s) {
+      const pct = Math.round(s.count / skillsMax * 100);
+      return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">'
+        + '<div style="width:100px;font-size:12.5px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + s.skill + '</div>'
+        + bar(pct, "#6366f1")
+        + '<div style="width:24px;text-align:right;font-size:12px;font-weight:700;color:var(--text-3);">' + s.count + '</div>'
+        + '</div>';
+    }).join("") || '<p style="font-size:13px;color:var(--text-3);">No skill data yet.</p>';
+
+    const fmtHtml = d.formats.map(function(f) {
+      const icons = { video:"📹", phone:"📞", onsite:"🏢" };
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">'
+        + '<span style="font-size:13px;">' + (icons[f.format]||"📋") + ' ' + f.format + '</span>'
+        + '<span style="font-weight:700;font-size:13px;">' + f.count + '</span>'
+        + '</div>';
+    }).join("") || '<p style="font-size:13px;color:var(--text-3);">No data yet.</p>';
+
+    document.getElementById("analytics-wrap").innerHTML =
+      // Rate cards
+      '<div class="stats-grid" style="margin-bottom:20px;grid-template-columns:repeat(4,1fr);">'
+      + '<div class="stat-card"><div class="stat-icon purple">📊</div><div><div class="stat-val">' + (d.avg_score != null ? d.avg_score + '/10' : '-') + '</div><div class="stat-lbl">Avg Match Score</div></div></div>'
+      + '<div class="stat-card"><div class="stat-icon blue">✅</div><div><div class="stat-val">' + r.shortlist_rate + '%</div><div class="stat-lbl">Shortlist Rate</div></div></div>'
+      + '<div class="stat-card"><div class="stat-icon amber">🎙️</div><div><div class="stat-val">' + r.interview_rate + '%</div><div class="stat-lbl">Interview → Hire</div></div></div>'
+      + '<div class="stat-card"><div class="stat-icon green">💼</div><div><div class="stat-val">' + d.active_jobs + '</div><div class="stat-lbl">Active Jobs</div></div></div>'
+      + '</div>'
+      // Row 1
+      + '<div class="grid-2" style="margin-bottom:20px;">'
+      + '<div class="card"><div class="card-head"><span class="card-title">Hiring Funnel</span></div><div class="card-body">' + funnelHtml + '</div></div>'
+      + '<div class="card"><div class="card-head"><span class="card-title">Score Distribution</span></div><div class="card-body">' + distHtml + '</div></div>'
+      + '</div>'
+      // Row 2
+      + '<div class="grid-2">'
+      + '<div class="card"><div class="card-head"><span class="card-title">Top Skills in Applicant Pool</span></div><div class="card-body">' + skillsHtml + '</div></div>'
+      + '<div class="card"><div class="card-head"><span class="card-title">Interview Format Breakdown</span></div><div class="card-body">' + fmtHtml + '</div></div>'
+      + '</div>';
+  }
+
+  // ════ BIAS CHECK ════
+  async function runBiasCheck() {
+    const btn = document.getElementById("bias-btn");
+    const wrap = document.getElementById("bias-wrap");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Checking...';
+    wrap.style.display = "none";
+    try {
+      const res  = await fetch(API_BASE + "/candidate/" + activeCandidateId + "/bias-check", { headers: h() });
+      const data = await res.json();
+      if (!res.ok) { wrap.innerHTML = '<p style="color:var(--danger);font-size:13px;">' + (data.detail||"Failed") + '</p>'; wrap.style.display=""; btn.disabled=false; btn.textContent="🔍 Bias Check"; return; }
+      renderBias(data.bias);
+    } catch(e) {
+      wrap.innerHTML = '<p style="color:var(--danger);font-size:13px;">' + e.message + '</p>';
+      wrap.style.display = "";
+    }
+    btn.disabled = false;
+    btn.textContent = "↻ Re-check";
+  }
+
+  function renderBias(b) {
+    const riskColors = { low:"#10b981", medium:"#f59e0b", high:"#ef4444" };
+    const riskBg     = { low:"#d1fae5", medium:"#fef3c7", high:"#fee2e2" };
+    const risk = b.risk_level || "low";
+    let html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
+      + '<span style="font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;background:' + riskBg[risk] + ';color:' + riskColors[risk] + ';">' + risk.toUpperCase() + ' RISK</span>'
+      + '</div>'
+      + '<p style="font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:12px;">' + (b.overall_assessment||"") + '</p>';
+
+    if (b.signals && b.signals.length) {
+      html += b.signals.map(function(s) {
+        return '<div style="background:#fafafa;border:1px solid var(--border);border-left:3px solid ' + riskColors[risk] + ';border-radius:6px;padding:10px 12px;margin-bottom:8px;">'
+          + '<div style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--text-3);margin-bottom:4px;">' + s.type + '</div>'
+          + '<div style="font-size:13px;color:var(--text-1);margin-bottom:4px;">' + s.detail + '</div>'
+          + '<div style="font-size:12px;color:var(--brand);">Recommendation: ' + s.recommendation + '</div>'
+          + '</div>';
+      }).join("");
+    }
+
+    if (b.anonymization_suggestions && b.anonymization_suggestions.length) {
+      html += '<div style="margin-top:12px;padding:10px 12px;background:#eff6ff;border-radius:8px;font-size:12.5px;color:#1e40af;">'
+        + '<strong>Suggested anonymizations:</strong> '
+        + b.anonymization_suggestions.join(", ")
+        + '</div>';
+    }
+
+    const wrap = document.getElementById("bias-wrap");
+    wrap.innerHTML = html;
+    wrap.style.display = "";
+  }
+
+  // ════ AUDIT LOG ════
+  const AUDIT_LABELS = {
+    job_created:          { icon:"💼", label:"Job Posted",            color:"badge-blue"  },
+    job_closed:           { icon:"🔒", label:"Job Closed",            color:"badge-gray"  },
+    resume_uploaded:      { icon:"📤", label:"Resume Uploaded",       color:"badge-blue"  },
+    interview_completed:  { icon:"✅", label:"Interview Completed",   color:"badge-green" },
+    transcript_uploaded:  { icon:"📄", label:"Transcript Uploaded",   color:"badge-blue"  },
+    interview_cancelled:  { icon:"🚫", label:"Interview Cancelled",   color:"badge-red"   },
+    decision_submitted:   { icon:"⚖️", label:"Decision Submitted",    color:"badge-amber" },
+  };
+
+  async function loadAuditLog() {
+    const wrap = document.getElementById("audit-wrap");
+    wrap.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div><p>Loading...</p></div>';
+    try {
+      const res  = await fetch(API_BASE + "/audit-logs?limit=200", { headers: h() });
+      const data = await res.json();
+      if (!res.ok) { wrap.innerHTML = '<div class="empty"><div class="empty-icon">🔒</div><p>Admin access required.</p></div>'; return; }
+      renderAuditLog(data.logs || []);
+    } catch(e) {
+      wrap.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>' + e.message + '</p></div>';
+    }
+  }
+
+  function renderAuditLog(logs) {
+    const wrap = document.getElementById("audit-wrap");
+    if (!logs.length) {
+      wrap.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><p>No audit events yet.</p></div>';
+      return;
+    }
+    const rows = logs.map(function(l) {
+      const meta = AUDIT_LABELS[l.action] || { icon:"🔹", label: l.action, color:"badge-gray" };
+      const ts   = new Date(l.ts).toLocaleString();
+      const role = l.actor_role === "admin"
+        ? '<span class="badge badge-amber" style="font-size:10px;">Admin</span>'
+        : '<span class="badge badge-blue"  style="font-size:10px;">Recruiter</span>';
+      const detail = l.detail ? '<span style="color:var(--text-3);font-size:12px;margin-left:6px;">' + l.detail + '</span>' : "";
+      return '<tr>'
+        + '<td style="color:var(--text-3);font-size:12px;white-space:nowrap;">' + ts + '</td>'
+        + '<td>' + role + '</td>'
+        + '<td><span class="badge ' + meta.color + '">' + meta.icon + ' ' + meta.label + '</span>' + detail + '</td>'
+        + '<td style="font-size:11px;color:var(--text-3);font-family:monospace;">' + (l.entity_id ? l.entity_id.slice(0,12) + "..." : "-") + '</td>'
+        + '</tr>';
+    }).join("");
+    wrap.innerHTML = '<div class="table-wrap"><table>'
+      + '<thead><tr><th>Time</th><th>Role</th><th>Action</th><th>Entity</th></tr></thead>'
+      + '<tbody>' + rows + '</tbody>'
+      + '</table></div>';
+  }
+
+  document.getElementById("refresh-btn").style.display = "";
+
+  // ════ JOBS ════
+  async function loadJobs() {
+    try {
+      const res  = await fetch(API_BASE + "/jobs", { headers: h() });
+      const data = await res.json();
+      renderJobs(data.jobs || []);
+    } catch(e) {
+      document.getElementById("jobs-list-wrap").innerHTML =
+        '<div class="empty"><div class="empty-icon">⚠️</div><p>' + e.message + '</p></div>';
+    }
+  }
+
+  function renderJobs(jobs) {
+    const wrap = document.getElementById("jobs-list-wrap");
+    if (!jobs.length) {
+      wrap.innerHTML = '<div class="empty"><div class="empty-icon">💼</div><p>No jobs posted yet. Create one to get started.</p></div>';
+      return;
+    }
+    wrap.innerHTML = jobs.map(function(j) {
+      const isActive = j.status === "active";
+      const isFull   = j.is_full;
+      const badge    = isFull
+        ? '<span class="badge badge-red">Full</span>'
+        : isActive
+        ? '<span class="badge badge-green">Active</span>'
+        : '<span class="badge badge-gray">Closed</span>';
+
+      // progress bar
+      let progressHtml = "";
+      if (j.max_applicants > 0) {
+        const pct  = Math.min(100, Math.round((j.applicant_count / j.max_applicants) * 100));
+        const barColor = pct >= 100 ? "var(--danger)" : pct >= 75 ? "var(--warning)" : "var(--success)";
+        progressHtml = '<div style="margin-top:10px;">'
+          + '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-bottom:4px;">'
+          + '<span>Applicants</span><span style="font-weight:700;color:var(--text-1);">' + j.applicant_count + ' / ' + j.max_applicants + '</span></div>'
+          + '<div style="background:#f1f5f9;border-radius:99px;height:6px;">'
+          + '<div style="width:' + pct + '%;background:' + barColor + ';height:6px;border-radius:99px;transition:width 0.3s;"></div>'
+          + '</div></div>';
+      } else {
+        progressHtml = '<div style="margin-top:6px;font-size:12px;color:var(--text-3);">👤 ' + j.applicant_count + ' applicant' + (j.applicant_count !== 1 ? 's' : '') + ' &nbsp;·&nbsp; unlimited</div>';
+      }
+
+      const actions = isActive ? '<div style="display:flex;gap:8px;margin-top:10px;">'
+        + '<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();selectJob(\'' + j.job_id + '\')">Copy Link</button>'
+        + '<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();closeJob(\'' + j.job_id + '\')">Close</button>'
+        + '</div>' : '';
+
+      return '<div style="padding:16px 20px;border-bottom:1px solid var(--border);cursor:pointer;" onclick="selectJob(\'' + j.job_id + '\')">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">'
+        + '<span style="font-size:14px;font-weight:700;color:var(--text-1);">' + j.title + '</span>'
+        + badge + '</div>'
+        + '<div style="font-size:12px;color:var(--text-3);">📋 ' + j.interview_format + ' &nbsp;·&nbsp; 📅 ' + new Date(j.created_at).toLocaleDateString() + '</div>'
+        + progressHtml
+        + actions
+        + '</div>';
+    }).join("");
+  }
+
+  function selectJob(jid) {
+    activeJobId = jid;
+    const link = window.location.origin + "/apply?job=" + jid;
+    document.getElementById("apply-link-input").value = link;
+    document.getElementById("apply-link-card").style.display = "block";
+    document.getElementById("apply-link-card").scrollIntoView({ behavior: "smooth" });
+  }
+
+  function copyApplyLink() {
+    const input = document.getElementById("apply-link-input");
+    navigator.clipboard.writeText(input.value).then(function() {
+      const btn = event.target;
+      btn.textContent = "Copied!";
+      setTimeout(function() { btn.textContent = "Copy Link"; }, 2000);
+    });
+  }
+
+  function openApplyPage() {
+    if (activeJobId) window.open(window.location.origin + "/apply?job=" + activeJobId, "_blank");
+  }
+
+  async function createJob() {
+    const btn   = document.getElementById("jb-submit-btn");
+    const title = document.getElementById("jb-title").value.trim();
+    const jd    = document.getElementById("jb-jd").value.trim();
+    hideAlerts("jb-success", "jb-error");
+    if (!title) return showAlert("jb-error", "Please enter a job title.");
+    if (!jd)    return showAlert("jb-error", "Please enter a job description.");
+    const sliders = Array.from(document.querySelectorAll("#panel-jobs input[type=range]"));
+    const [sw, ew, edw, cw] = sliders.map(function(s) { return parseFloat(s.value); });
+    const maxAp = parseInt(document.getElementById("jb-max").value, 10) || 0;
+    setLoading(btn, true);
+    try {
+      const res  = await fetch(API_BASE + "/jobs", {
+        method: "POST", headers: h(true),
+        body: JSON.stringify({
+          title: title, raw_jd: jd,
+          skills_weight: sw, experience_weight: ew,
+          education_weight: edw, culture_fit_weight: cw,
+          interview_format: document.getElementById("jb-format").value,
+          max_applicants: maxAp,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { showAlert("jb-error", data.detail || "Failed to create job."); }
+      else {
+        showAlert("jb-success", "Job posted! Select it from the list to copy the apply link.");
+        document.getElementById("jb-title").value = "";
+        document.getElementById("jb-jd").value    = "";
+        loadJobs();
+        selectJob(data.job_id);
+      }
+    } catch(e) { showAlert("jb-error", "Could not reach API: " + e.message); }
+    setLoading(btn, false);
+  }
+
+  async function closeJob(jid) {
+    if (!confirm("Close this job? It will stop accepting new applications.")) return;
+    try {
+      await fetch(API_BASE + "/jobs/" + jid, { method: "DELETE", headers: h() });
+      loadJobs();
+      document.getElementById("apply-link-card").style.display = "none";
+    } catch(e) { alert("Failed: " + e.message); }
+  }
+</script>
+</body>
+</html>

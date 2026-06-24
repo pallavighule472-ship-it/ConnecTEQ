@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Apply — ConnecTEQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --brand:   #4f46e5;
+      --brand-lt:#6366f1;
+      --brand-bg:#eef2ff;
+      --success: #10b981;
+      --danger:  #ef4444;
+      --text-1:  #0f172a;
+      --text-2:  #475569;
+      --text-3:  #94a3b8;
+      --border:  #e2e8f0;
+      --bg:      #f8fafc;
+      --card:    #ffffff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-1); min-height: 100vh; }
+
+    /* ── Header ── */
+    .header {
+      background: var(--card); border-bottom: 1px solid var(--border);
+      padding: 0 40px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-brand { display: flex; align-items: center; gap: 10px; }
+    .header-brand svg { width: 28px; height: 28px; }
+    .header-brand-name { font-size: 15px; font-weight: 800; letter-spacing: 1.5px; color: var(--text-1); }
+    .header-brand-name em { color: var(--brand); font-style: normal; }
+    .header-badge { font-size: 11px; font-weight: 600; color: var(--text-3); background: var(--bg); border: 1px solid var(--border); padding: 3px 10px; border-radius: 20px; }
+
+    /* ── Layout ── */
+    .page { max-width: 860px; margin: 40px auto; padding: 0 24px 60px; }
+
+    /* ── Job card ── */
+    .job-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 28px 32px; margin-bottom: 28px;
+      box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+    }
+    .job-role-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--brand-bg); color: var(--brand);
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; padding: 4px 10px; border-radius: 20px; margin-bottom: 12px;
+    }
+    .job-title  { font-size: 26px; font-weight: 800; color: var(--text-1); margin-bottom: 6px; }
+    .job-meta   { font-size: 13px; color: var(--text-3); margin-bottom: 20px; }
+    .job-divider{ height: 1px; background: var(--border); margin: 20px 0; }
+    .jd-label   { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
+    .jd-body    { font-size: 13.5px; color: var(--text-2); line-height: 1.7; white-space: pre-wrap; max-height: 260px; overflow-y: auto; padding-right: 4px; }
+    .jd-body::-webkit-scrollbar { width: 4px; }
+    .jd-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .show-more  { font-size: 12px; color: var(--brand); cursor: pointer; margin-top: 8px; font-weight: 600; }
+
+    /* ── Apply form ── */
+    .apply-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 28px 32px;
+      box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+    }
+    .apply-title { font-size: 17px; font-weight: 700; margin-bottom: 22px; }
+    .form-row  { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group{ margin-bottom: 18px; }
+    .form-label{ display: block; font-size: 12px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 7px; }
+    .form-input{
+      width: 100%; padding: 10px 13px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 13.5px; font-family: inherit; color: var(--text-1);
+      background: var(--bg); outline: none; transition: border 0.15s;
+    }
+    .form-input:focus { border-color: var(--brand); background: #fff; box-shadow: 0 0 0 3px rgba(79,70,229,0.08); }
+    .optional { font-size: 11px; color: var(--text-3); font-weight: 400; margin-left: 4px; text-transform: none; letter-spacing: 0; }
+
+    /* ── File drop ── */
+    .file-drop {
+      border: 2px dashed var(--border); border-radius: 10px;
+      padding: 36px; text-align: center; cursor: pointer;
+      transition: all 0.15s; background: var(--bg);
+    }
+    .file-drop:hover, .file-drop.drag-over { border-color: var(--brand); background: var(--brand-bg); }
+    .fd-icon  { font-size: 32px; margin-bottom: 10px; }
+    .fd-text  { font-size: 13.5px; color: var(--text-2); }
+    .fd-text strong { color: var(--brand); }
+    .fd-hint  { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+    .file-drop input { display: none; }
+    .file-chosen {
+      display: none; margin-top: 10px;
+      background: var(--brand-bg); border: 1px solid #c7d2fe;
+      border-radius: 8px; padding: 10px 14px;
+      font-size: 13px; color: var(--brand); font-weight: 500;
+      display: none; align-items: center; gap: 8px;
+    }
+    .file-chosen.show { display: flex; }
+
+    /* ── Consent ── */
+    .consent {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 12.5px; color: var(--text-2); margin-bottom: 22px;
+    }
+    .consent input { margin-top: 2px; accent-color: var(--brand); }
+
+    /* ── Submit ── */
+    .btn-submit {
+      width: 100%; padding: 13px; border-radius: 10px;
+      background: var(--brand); color: #fff; border: none;
+      font-size: 15px; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: all 0.15s;
+      box-shadow: 0 4px 14px rgba(79,70,229,0.35);
+    }
+    .btn-submit:hover:not(:disabled) { background: var(--brand-lt); box-shadow: 0 6px 20px rgba(79,70,229,0.45); }
+    .btn-submit:disabled { background: #c7d2fe; box-shadow: none; cursor: not-allowed; }
+
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── States ── */
+    #loading-state { text-align: center; padding: 80px 20px; }
+    .loader { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+
+    #error-state  { text-align: center; padding: 80px 20px; display: none; }
+    .err-icon { font-size: 48px; margin-bottom: 16px; }
+    .err-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .err-msg   { font-size: 14px; color: var(--text-3); }
+
+    #success-state { display: none; text-align: center; padding: 60px 20px; }
+    .success-icon  { font-size: 56px; margin-bottom: 20px; }
+    .success-title { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+    .success-sub   { font-size: 14px; color: var(--text-2); max-width: 400px; margin: 0 auto 24px; line-height: 1.6; }
+    .success-id    { background: #0f172a; color: #818cf8; font-family: 'Courier New', monospace; font-size: 13px; padding: 12px 20px; border-radius: 8px; display: inline-block; word-break: break-all; }
+    .id-hint       { font-size: 12px; color: var(--text-3); margin-top: 8px; }
+
+    .alert-err { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; border-radius: 8px; padding: 11px 14px; font-size: 13px; margin-top: 14px; display: none; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-brand">
+    <svg viewBox="0 0 100 100" fill="none">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#e8c97a"/>
+          <stop offset="100%" stop-color="#8a6520"/>
+        </linearGradient>
+        <radialGradient id="n" cx="40%" cy="50%" r="55%">
+          <stop offset="0%" stop-color="#1a3550"/>
+          <stop offset="100%" stop-color="#0d1f2d"/>
+        </radialGradient>
+      </defs>
+      <circle cx="38" cy="46" r="34" fill="url(#n)"/>
+      <line x1="22" y1="30" x2="34" y2="22" stroke="#c9a24a" stroke-width="1.5"/>
+      <line x1="22" y1="30" x2="16" y2="44" stroke="#c9a24a" stroke-width="1.5"/>
+      <line x1="22" y1="30" x2="30" y2="48" stroke="#c9a24a" stroke-width="1.5"/>
+      <line x1="16" y1="44" x2="30" y2="48" stroke="#c9a24a" stroke-width="1.5"/>
+      <circle cx="34" cy="22" r="3" fill="#c9a24a"/>
+      <circle cx="22" cy="30" r="3.5" fill="#c9a24a"/>
+      <circle cx="16" cy="44" r="2.5" fill="#c9a24a"/>
+      <circle cx="30" cy="48" r="3" fill="#c9a24a"/>
+      <path d="M55 14 C63 14 72 21 74 30 C76 37 73 43 70 46 L75 52 C77 55 75 59 72 60 L70 61 C69 67 65 73 60 76 L58 80 C56 83 53 85 51 83 L49 80 C48 77 50 74 52 73 L54 68 C50 66 47 61 47 55 L47 51 C44 49 42 45 43 41 C42 36 45 30 49 27 C50 21 52 15 55 14 Z" fill="url(#g)"/>
+      <path d="M67 34 L73 37 L67 40 Z" fill="#0d1f2d"/>
+    </svg>
+    <div class="header-brand-name">Connec<em>TEQ</em></div>
+  </div>
+  <div class="header-badge">Careers Portal</div>
+</div>
+
+<div class="page">
+
+  <!-- Loading -->
+  <div id="loading-state">
+    <div class="loader"></div>
+    <p style="color:var(--text-3);font-size:14px;">Loading job details...</p>
+  </div>
+
+  <!-- Error -->
+  <div id="error-state">
+    <div class="err-icon">🔍</div>
+    <div class="err-title">Job Not Found</div>
+    <div class="err-msg" id="error-msg">This job posting may have been closed or the link is invalid.</div>
+  </div>
+
+  <!-- Success -->
+  <div id="success-state">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">Application Submitted!</div>
+    <div class="success-sub">Thank you for applying. Our AI pipeline will review your resume and you will receive an email within 24–48 hours if shortlisted.</div>
+    <div class="success-id" id="success-id"></div>
+    <div class="id-hint">Save this Application ID for your records</div>
+  </div>
+
+  <!-- Main content -->
+  <div id="main-content" style="display:none;">
+
+    <!-- Job details -->
+    <div class="job-card">
+      <div class="job-role-badge">&#128188; Open Position</div>
+      <div class="job-title" id="job-title">Loading...</div>
+      <div class="job-meta" id="job-meta"></div>
+      <div class="job-divider"></div>
+      <div class="jd-label">Job Description</div>
+      <div class="jd-body" id="jd-body"></div>
+    </div>
+
+    <!-- Apply form -->
+    <div class="apply-card">
+      <div class="apply-title">Submit Your Application</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Full Name <span class="optional">(optional)</span></label>
+          <input type="text" class="form-input" id="f-name" placeholder="Jane Smith"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address <span class="optional">(optional)</span></label>
+          <input type="email" class="form-input" id="f-email" placeholder="jane@example.com"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Resume / CV</label>
+        <div class="file-drop" id="file-drop"
+             onclick="document.getElementById('resume-file').click()"
+             ondragover="event.preventDefault();this.classList.add('drag-over')"
+             ondragleave="this.classList.remove('drag-over')"
+             ondrop="handleDrop(event)">
+          <input type="file" id="resume-file" accept=".pdf,.docx" onchange="handleFile(this.files[0])"/>
+          <div class="fd-icon">📄</div>
+          <div class="fd-text"><strong>Click to upload</strong> or drag and drop</div>
+          <div class="fd-hint">PDF or DOCX &middot; max 10 MB</div>
+        </div>
+        <div class="file-chosen" id="file-chosen">
+          <span>📎</span><span id="file-chosen-name"></span>
+        </div>
+      </div>
+
+      <div class="consent">
+        <input type="checkbox" id="consent-check" onchange="toggleSubmit()"/>
+        <label for="consent-check">
+          I consent to ConnecTEQ processing my personal data and resume for recruitment purposes.
+          My information will be handled in accordance with applicable data protection regulations.
+        </label>
+      </div>
+
+      <button class="btn-submit" id="submit-btn" disabled onclick="submitApplication()">
+        Submit Application
+      </button>
+      <div class="alert-err" id="apply-error"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const API_BASE = window.location.origin;
+  let jobId = null;
+  let selectedFile = null;
+
+  function getJobIdFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("job");
+  }
+
+  async function loadJob() {
+    jobId = getJobIdFromUrl();
+    if (!jobId) { showError("No job ID provided in the URL."); return; }
+    try {
+      const res = await fetch(API_BASE + "/jobs/" + jobId);
+      if (!res.ok) { showError("This job posting was not found or has been closed."); return; }
+      const job = await res.json();
+      if (job.status !== "active" || job.is_full) { showError("This job posting has reached its applicant limit and is no longer accepting applications."); return; }
+      renderJob(job);
+    } catch (e) {
+      showError("Could not reach the server. Please try again later.");
+    }
+  }
+
+  function renderJob(job) {
+    document.title = "Apply - " + job.title + " | ConnecTEQ";
+    document.getElementById("job-title").textContent = job.title;
+    const limitNote = job.max_applicants > 0
+      ? "  ·  " + job.applicant_count + " / " + job.max_applicants + " applicants"
+      : "  ·  Applications open";
+    document.getElementById("job-meta").textContent =
+      "Interview format: " + (job.interview_format || "Video") + limitNote;
+    document.getElementById("jd-body").textContent = job.raw_jd;
+    document.getElementById("loading-state").style.display = "none";
+    document.getElementById("main-content").style.display = "block";
+  }
+
+  function showError(msg) {
+    document.getElementById("loading-state").style.display = "none";
+    document.getElementById("error-msg").textContent = msg;
+    document.getElementById("error-state").style.display = "block";
+  }
+
+  function handleFile(f) {
+    if (!f) return;
+    selectedFile = f;
+    const el = document.getElementById("file-chosen");
+    document.getElementById("file-chosen-name").textContent = f.name;
+    el.classList.add("show");
+    toggleSubmit();
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById("file-drop").classList.remove("drag-over");
+    handleFile(e.dataTransfer.files[0]);
+  }
+
+  function toggleSubmit() {
+    const hasFile    = selectedFile != null;
+    const hasConsent = document.getElementById("consent-check").checked;
+    document.getElementById("submit-btn").disabled = !(hasFile && hasConsent);
+  }
+
+  async function submitApplication() {
+    const btn = document.getElementById("submit-btn");
+    document.getElementById("apply-error").style.display = "none";
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Submitting...';
+
+    const form = new FormData();
+    form.append("file", selectedFile);
+
+    try {
+      const res  = await fetch(API_BASE + "/apply/" + jobId, { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) {
+        const err = document.getElementById("apply-error");
+        err.textContent = data.detail || "Submission failed. Please try again.";
+        err.style.display = "block";
+        btn.disabled = false;
+        btn.textContent = "Submit Application";
+        return;
+      }
+      document.getElementById("main-content").style.display = "none";
+      document.getElementById("success-id").textContent = data.candidate_id;
+      document.getElementById("success-state").style.display = "block";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (e) {
+      const err = document.getElementById("apply-error");
+      err.textContent = "Could not reach server: " + e.message;
+      err.style.display = "block";
+      btn.disabled = false;
+      btn.textContent = "Submit Application";
+    }
+  }
+
+  loadJob();
+</script>
+</body>
+</html>
