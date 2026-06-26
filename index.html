@@ -1540,10 +1540,14 @@
         progressHtml = '<div style="margin-top:6px;font-size:12px;color:var(--text-3);">👤 ' + j.applicant_count + ' applicant' + (j.applicant_count !== 1 ? 's' : '') + ' &nbsp;·&nbsp; unlimited</div>';
       }
 
-      const actions = isActive ? '<div style="display:flex;gap:8px;margin-top:10px;">'
-        + '<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();selectJob(\'' + j.job_id + '\')">Copy Link</button>'
-        + '<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();closeJob(\'' + j.job_id + '\')">Close</button>'
-        + '</div>' : '';
+      const actions = isActive
+        ? '<div style="display:flex;gap:8px;margin-top:10px;">'
+          + '<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();selectJob(\'' + j.job_id + '\')">Copy Link</button>'
+          + '<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();closeJob(\'' + j.job_id + '\')">Close</button>'
+          + '</div>'
+        : '<div style="margin-top:10px;">'
+          + '<button class="btn btn-danger btn-sm admin-only" onclick="event.stopPropagation();deleteJob(\'' + j.job_id + '\')">🗑 Delete</button>'
+          + '</div>';
 
       return '<div style="padding:16px 20px;border-bottom:1px solid var(--border);cursor:pointer;" onclick="selectJob(\'' + j.job_id + '\')">'
         + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">'
@@ -1618,6 +1622,20 @@
       await fetch(API_BASE + "/jobs/" + jid, { method: "DELETE", headers: h() });
       loadJobs();
       document.getElementById("apply-link-card").style.display = "none";
+    } catch(e) { alert("Failed: " + e.message); }
+  }
+
+  async function deleteJob(jid) {
+    if (!confirm("Permanently delete this job posting? This cannot be undone.")) return;
+    try {
+      const res = await fetch(API_BASE + "/jobs/" + jid + "/permanent", { method: "DELETE", headers: h() });
+      if (res.ok) {
+        loadJobs();
+        document.getElementById("apply-link-card").style.display = "none";
+      } else {
+        const d = await res.json();
+        alert("Delete failed: " + (d.detail || res.status));
+      }
     } catch(e) { alert("Failed: " + e.message); }
   }
 </script>

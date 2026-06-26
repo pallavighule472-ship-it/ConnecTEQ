@@ -279,6 +279,13 @@ def close_job(job_id: str, role: str = Depends(require_admin)):
     audit("job_closed", "job", job_id, role)
     return {"job_id": job_id, "status": "closed"}
 
+@app.delete("/jobs/{job_id}/permanent")
+def delete_job(job_id: str, role: str = Depends(require_admin)):
+    _conn.execute("DELETE FROM jobs WHERE job_id=?", (job_id,))
+    _conn.commit()
+    audit("job_deleted", "job", job_id, role)
+    return {"job_id": job_id, "status": "deleted"}
+
 @app.post("/apply/{job_id}")
 async def apply_for_job(job_id: str, file: UploadFile = File(...)):
     row = _conn.execute(
