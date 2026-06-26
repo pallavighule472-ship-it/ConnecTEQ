@@ -21,7 +21,7 @@ logging.basicConfig(
 logger = logging.getLogger("api")
 
 from fastapi.middleware.cors import CORSMiddleware
-from HR_backend import ingest_resume, graph, s3, S3_BUCKET
+from HR_backend import ingest_resume, graph, s3, sqs, S3_BUCKET
 try:
     from langgraph.errors import GraphInterrupt
 except ImportError:
@@ -166,8 +166,8 @@ def health():
 
 
 @app.get("/debug")
-def debug():
-    """Diagnose the full pipeline — call this when candidates don't appear."""
+def debug(_: str = Depends(require_api_key)):
+    """Diagnose the full pipeline — requires API key."""
     out = {}
 
     # ── 1. Database: jobs ────────────────────────────────────────────────────
@@ -189,14 +189,7 @@ def debug():
 
     # ── 3. SQS: messages in queue ───────────────────────────────────────────
     try:
-        import boto3 as _boto3
-        _sqs = _boto3.client(
-            "sqs",
-            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-            region_name=os.getenv("AWS_REGION"),
-        )
-        attrs = _sqs.get_queue_attributes(
+        attrs = sqs.get_queue_attributes(
             QueueUrl=os.getenv("SQS_QUEUE_URL", ""),
             AttributeNames=["ApproximateNumberOfMessages",
                             "ApproximateNumberOfMessagesNotVisible"],
@@ -214,7 +207,6 @@ def debug():
                 "ADMIN_API_KEY", "HR_EMAIL"]
     out["env"] = {k: ("SET" if os.getenv(k) else "MISSING") for k in required}
 
-    logger.info(f"[debug] {out}")
     return out
 
 

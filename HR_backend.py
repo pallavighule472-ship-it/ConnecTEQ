@@ -870,9 +870,6 @@ def wait_for_interview(state: RecruitmentState) -> dict:
         "Interview time has passed. Awaiting interviewer confirmation to proceed."
     )
 
-    logger.info(f"[{cid}] wait_for_interview — interview completed")
-    return {"interview_status": "completed"}
-
 def _build_evaluation_dimensions(job: JobProfile) -> list:
     core = [
         {"name": "Communication",   "weight": 0.15},
