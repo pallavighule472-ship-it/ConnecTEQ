@@ -322,6 +322,80 @@
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+    /* ════ MOBILE MENU ════ */
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 99;
+    }
+    .sidebar-overlay.open { display: block; }
+
+    .menu-btn {
+      display: none; background: none; border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 8px; padding: 5px 9px; font-size: 18px; line-height: 1;
+      cursor: pointer; color: var(--text-2); flex-shrink: 0; margin-right: 8px;
+    }
+
+    /* ════ RESPONSIVE ════ */
+    @media (max-width: 1100px) {
+      .stats-grid { grid-template-columns: repeat(3,1fr); }
+    }
+
+    @media (max-width: 768px) {
+      body { overflow: auto; height: auto; }
+      #app { min-height: 100vh; }
+
+      /* Sidebar becomes a side drawer */
+      .sidebar {
+        position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+        transform: translateX(-100%); transition: transform 0.25s ease;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+      }
+      .sidebar.open { transform: translateX(0); }
+
+      .main { width: 100%; }
+
+      .menu-btn { display: inline-flex; align-items: center; justify-content: center; }
+      .topbar { padding: 0 14px; }
+      .topbar-left { display: flex; align-items: center; }
+      .topbar-left p { display: none; }
+      .topbar-left h1 { font-size: 15px; }
+      #refresh-btn { display: none; }
+
+      .content { padding: 14px; }
+
+      .stats-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+
+      .grid-2 { grid-template-columns: 1fr !important; }
+      .detail-grid { grid-template-columns: 1fr 1fr; }
+
+      .login-card { width: 92vw; padding: 32px 22px; }
+
+      /* Modal becomes a bottom sheet */
+      .modal { width: 100vw; max-width: 100vw; border-radius: 20px 20px 0 0; max-height: 92vh; }
+      .modal-overlay { align-items: flex-end; }
+
+      .status-metrics { grid-template-columns: 1fr 1fr; }
+
+      .card-head { flex-wrap: wrap; gap: 8px; }
+      .card-head > div { flex-wrap: wrap; gap: 6px; }
+      #candidate-search { width: 100% !important; }
+      #candidate-filter { width: 100% !important; }
+
+      .slider-label { width: 70px; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid { gap: 8px; }
+      .stat-card { padding: 14px; gap: 10px; }
+      .stat-val { font-size: 22px; }
+      .topbar-right .btn-primary { display: none; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .act-tabs { gap: 4px; }
+      .act-tab { padding: 6px 10px; font-size: 12px; }
+      .modal-footer { flex-wrap: wrap; }
+      .modal-footer .btn { flex: 1; min-width: 110px; justify-content: center; }
+    }
   </style>
 </head>
 <body>
@@ -371,6 +445,9 @@
 
 <!-- ════ APP ════ -->
 <div id="app">
+
+<!-- Sidebar overlay backdrop (mobile) -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
@@ -447,8 +524,11 @@
 <div class="main">
   <div class="topbar">
     <div class="topbar-left">
-      <h1 id="topbar-title">Dashboard</h1>
-      <p id="topbar-desc">Pipeline overview across all candidates</p>
+      <button class="menu-btn" onclick="toggleSidebar()" aria-label="Open menu">&#9776;</button>
+      <div>
+        <h1 id="topbar-title">Dashboard</h1>
+        <p id="topbar-desc">Pipeline overview across all candidates</p>
+      </div>
     </div>
     <div class="topbar-right">
       <span id="role-badge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.3px;"></span>
@@ -908,8 +988,21 @@
     }
   }
 
+  // ── Mobile sidebar ──
+  function toggleSidebar() {
+    const sb = document.querySelector('.sidebar');
+    const ov = document.getElementById('sidebar-overlay');
+    sb.classList.toggle('open');
+    ov.classList.toggle('open');
+  }
+  function closeSidebar() {
+    document.querySelector('.sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+  }
+
   // ── Navigation ──
   function nav(name, el) {
+    closeSidebar();
     document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
     document.querySelectorAll(".sb-item").forEach(n => n.classList.remove("active"));
     document.getElementById("panel-" + name).classList.add("active");

@@ -136,6 +136,16 @@
     .id-hint       { font-size: 12px; color: var(--text-3); margin-top: 8px; }
 
     .alert-err { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; border-radius: 8px; padding: 11px 14px; font-size: 13px; margin-top: 14px; display: none; }
+
+    @media (max-width: 600px) {
+      .header { padding: 0 16px; }
+      .header-badge { display: none; }
+      .page { margin: 16px auto; padding: 0 14px 40px; }
+      .job-card, .apply-card { padding: 20px 16px; }
+      .job-title { font-size: 20px; }
+      .form-row { grid-template-columns: 1fr; }
+      .file-drop { padding: 24px 16px; }
+    }
   </style>
 </head>
 <body>
